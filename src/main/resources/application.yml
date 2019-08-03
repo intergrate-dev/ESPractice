@@ -1,0 +1,21 @@
+server:
+  port:  8080
+
+# ES & rabbitmq
+spring:
+  data:
+    elasticsearch:
+      cluster-name: 172.19.207.201
+  rabbitmq:
+    host: 172.19.207.201
+    port: 5672
+    virtual-host: rabbit_vhost
+    username: admin
+    password: admin
+
+# logbak
+
+
+
+
+
