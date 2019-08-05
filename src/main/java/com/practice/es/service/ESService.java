@@ -10,6 +10,7 @@ import java.util.Map;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.practice.bus.bean.SiteMonitorEntity;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -23,6 +24,7 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.rest.RestStatus;
@@ -32,6 +34,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +67,7 @@ public class ESService {
 
     private final static String INDEX = "doc";
     private final static String TYPE = "office";
+    private final static String INDEX_SITE = "siteMonitor";
 
     /**
      * 添加文档
@@ -211,13 +215,71 @@ public class ESService {
         return null;
     }
 
+    public void createSiteInfo(SiteMonitorEntity siteMonitor) {
+        IndexRequest indexRequest = new IndexRequest(INDEX_SITE);
+        indexRequest.id(siteMonitor.getId().concat(siteMonitor.getTask()));
+        String source = JSON.toJSON(siteMonitor).toString();
+        indexRequest.source(source, XContentType.JSON);
+        try {
+            IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
+            logger.error("================= createSiteInfo, indexResponse status: {}, source: {}", indexResponse.status(), source);
+        } catch (IOException e) {
+            logger.error("================= createSiteInfo error, id: {}, error: {} =============", indexRequest.id(), e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void modifySiteInfo(SiteMonitorEntity siteMonitor) {
+        String source = JSON.toJSON(siteMonitor).toString();
+        UpdateRequest request = new UpdateRequest(INDEX_SITE, siteMonitor.getId().concat(siteMonitor.getTask()));
+        request.doc(source, XContentType.JSON);
+        try {
+            UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
+            logger.error("================= createSiteInfo, indexResponse status: {}, source: {}", updateResponse.status(), source);
+        } catch (IOException e) {
+            logger.error("================= createSiteInfo error, id: {}, error: {} =============", request.id(), e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    public void querySiteInfo() {
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.from(0);
+        sourceBuilder.size(10);
+        sourceBuilder.fetchSource(new String[]{INDEX_SITE}, new String[]{});
+        //MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("docId", "002");
+        /*TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("tag", "体育");
+        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("publishTime");
+        rangeQueryBuilder.gte("2018-01-26T08:00:00Z");
+        rangeQueryBuilder.lte("2018-01-26T20:00:00Z");*/
+        // TODO search (包含siteId, all status: 1 >> 1 : 0)
+        // TODO order by status desc and updateTime desc
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        //boolBuilder.must(matchQueryBuilder);
+        //boolBuilder.must(termQueryBuilder);
+        //boolBuilder.must(rangeQueryBuilder);
+        sourceBuilder.query(boolBuilder);
+        sourceBuilder.sort("updateTime", SortOrder.DESC);
+        // TODO 按站点状态聚合查询
+        SearchRequest searchRequest = new SearchRequest(INDEX_SITE);
+        searchRequest.source(sourceBuilder);
+        try {
+            SearchResponse response = client.search(searchRequest, null);
+
+            logger.info("=============================== es esearch response: {} =======================", response.toString());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     /**
      * 根据用户输入条件进行查询
      *
      * @throws ParseException
      **/
-    /*public ESSearchResp<DocInfo> query(ESSearchReq esSearchReq) throws ParseException {
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+    public ESSearchResp<DocInfo> query(ESSearchReq esSearchReq) throws ParseException {
+        /*BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         //针对keyword进行过滤
         if (!StringUtils.isEmpty(esSearchReq.getDocType())) {
             boolQuery.filter(QueryBuilders.termQuery(ESFieldName.DOC_TYPE, esSearchReq.getDocType()));
@@ -287,15 +349,16 @@ public class ESService {
 				docInfo.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse((String)hit.getSource().get(ESFieldName.CREATE_TIME)));
 				result.add(docInfo);
 			}
-			return new ESSearchResp<DocInfo>(searchResponse.getHits().getTotalHits(), result);
+            return new ESSearchResp<DocInfo>(searchResponse.getHits().getTotalHits(), result);
+        }*/
         return null;
-    }*/
+    }
 
     /**
      * 聚合查询
      */
-    /*public long aggregationQuery(String author) {
-        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+    public long aggregationQuery(String author) {
+        /*BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         if (!StringUtils.isEmpty(author)) {
             boolQuery.filter(QueryBuilders.termQuery(ESFieldName.AUTHOR, author));
         }
@@ -317,7 +380,8 @@ public class ESService {
                 //这里查出指定作者一共有多少篇文章
                 return terms.getBucketByKey(author).getDocCount();
             }
-        }
+        }*/
         return 0L;
-    }*/
+    }
+
 }

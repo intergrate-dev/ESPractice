@@ -1,5 +1,6 @@
 package com.practice.bus.controller;
 
+import com.practice.es.service.ESService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,9 +21,12 @@ import java.util.Map;
 public class DocController {
 	@Autowired
 	DocService docService;
+	@Autowired
+	ESService esService;
+
 
 	/**
-	 * 添加文档
+	 * 查询文档
 	 */
 	@RequestMapping("/search")
 	@ResponseBody
@@ -73,6 +77,41 @@ public class DocController {
 		DocInfo docInfo = new DocInfo();
 		docInfo.setDocId(1L);
 		docService.deleteDoc(docInfo);
+		return "delete success";
+	}
+
+	/**
+	 * 删除文档
+	 */
+	@RequestMapping("/createSiteInfo")
+	@ResponseBody
+	public String createSiteInfo() {
+
+		esService.createSiteInfo(null);
+		return "delete success";
+	}
+
+
+	/**
+	 * 删除文档
+	 */
+	@RequestMapping("/modifySiteInfo")
+	@ResponseBody
+	public String modifySiteInfo() {
+
+		esService.modifySiteInfo(null);
+		return "delete success";
+	}
+
+
+	/**
+	 * 删除文档
+	 */
+	@RequestMapping("/querySiteInfo")
+	@ResponseBody
+	public String querySiteInfo() {
+
+		esService.querySiteInfo();
 		return "delete success";
 	}
 }
