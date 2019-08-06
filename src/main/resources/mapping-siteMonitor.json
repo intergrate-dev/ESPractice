@@ -1,37 +1,35 @@
 {
-  "settings":{
-    "number_of_replicas":0
+  "settings": {
+    "number_of_replicas": 0
   },
-  "mappings":{
-    "manage":{
-      "dynamic":true,
-      "properties":{
-        "id":{
-          "type":"text"
-        },
-        "siteName":{
-          "type":"text"
-        },
-        "dataChannel":{
-          "type":"text"
-        },
-        "status":{
-          "type":"keyword"
-        },
-        "extInfo":{
-          "type":"keyword"
-        },
-        "createTime":{
-          "type":"date",
-          "format":"yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
-        },
-        "updateTime":{
-          "type":"date",
-          "format":"yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
-        },
-        "task":{
-          "type":"keyword"
-        }
+  "mappings": {
+    "dynamic": true,
+    "properties": {
+      "id": {
+        "type": "keyword"
+      },
+      "siteName": {
+        "type": "text"
+      },
+      "dataChannel": {
+        "type": "text"
+      },
+      "status": {
+        "type": "integer"
+      },
+      "extInfo": {
+        "type": "text"
+      },
+      "createTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "updateTime": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+      },
+      "task": {
+        "type": "keyword"
       }
     }
   }

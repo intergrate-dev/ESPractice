@@ -13,7 +13,8 @@ public class RestClientStandaloneConfiguration extends RestClientConfiguration {
 
     @Override
     HttpHost[] getHttpHosts() {
-        return new HttpHost[0];
+        HttpHost[] hosts = {new HttpHost("172.19.207.201", 9200)};
+        return hosts;
     }
 
     public String getHost() {

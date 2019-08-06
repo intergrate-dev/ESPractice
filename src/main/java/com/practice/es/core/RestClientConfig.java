@@ -24,7 +24,7 @@ public class RestClientConfig {
      */
     @Bean
     public RestClientConfiguration restClientConfiguration(){
-        RestClientStandaloneConfiguration configuration = new RestClientStandaloneConfiguration("localhost",9200);
+        RestClientStandaloneConfiguration configuration = new RestClientStandaloneConfiguration("172.19.207.201",9200);
         configuration.setConnectTimeout(1000);
         configuration.setConnectionRequestTimeout(500);
         configuration.setSocketTimeout(20000);

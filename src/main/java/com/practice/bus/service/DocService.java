@@ -1,5 +1,6 @@
 package com.practice.bus.service;
 
+import com.practice.bus.bean.SiteMonitorEntity;
 import com.practice.es.service.ESService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,4 +72,5 @@ public class DocService {
 	public String searchDocs(Map<String, String> map) {
 		return esService.queryDocs(map);
 	}
+
 }

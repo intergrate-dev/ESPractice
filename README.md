@@ -60,23 +60,7 @@ https://blog.csdn.net/weixin_42393758/article/details/84581314
 
 https://www.jianshu.com/p/3cb205b5354a
 
-mode
-```
-{
-  "query": { 
-    "bool": { 
-      "must": [
-        { "match": { "title":   "Search"        }},
-        { "match": { "content": "Elasticsearch" }}
-      ],
-      "filter": [ 
-        { "term":  { "status": "published" }},
-        { "range": { "publish_date": { "gte": "2015-01-01" }}}
-      ]
-    }
-  }
-}
-```
+
 
 ```
 list all indices
@@ -122,8 +106,6 @@ $ curl -XPOST "http://10.72.25.10:9200/_bulk?pretty" --data-binary @book.json
 
 delete index
 DELETE http://10.72.25.10:9200/books
-
-
 
 #### 1. insert
 ```
@@ -208,6 +190,24 @@ or
 ```
 
 多条件
+
+```
+{
+  "query": { 
+    "bool": { 
+      "must": [
+        { "match": { "title":   "Search"        }},
+        { "match": { "content": "Elasticsearch" }}
+      ],
+      "filter": [ 
+        { "term":  { "status": "published" }},
+        { "range": { "publish_date": { "gte": "2015-01-01" }}}
+      ]
+    }
+  }
+}
+```
+
 ```
 {
     "size": 10,

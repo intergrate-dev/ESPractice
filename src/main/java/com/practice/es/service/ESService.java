@@ -1,18 +1,14 @@
 package com.practice.es.service;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.practice.bus.bean.DocInfo;
 import com.practice.bus.bean.SiteMonitorEntity;
 import com.practice.es.core.RestClientTemplate;
-import org.apache.http.HttpEntity;
-import org.apache.http.entity.ContentType;
-import org.apache.http.nio.entity.NStringEntity;
+import com.practice.util.FastJsonConvertUtil;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -20,34 +16,32 @@ import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.*;
-import org.elasticsearch.index.seqno.RetentionLeaseActions;
-import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.metrics.ParsedStats;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.practice.bus.bean.DocInfo;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.*;
 
 /**
  * 需要提前使用REST AIP创建索引 映射
@@ -74,7 +68,7 @@ public class ESService {
 
     private final static String INDEX = "doc";
     private final static String TYPE = "office";
-    private final static String INDEX_SITE = "siteMonitor";
+    private final static String INDEX_SITE = "sitemonitor";
 
     /**
      * 添加文档
@@ -210,7 +204,7 @@ public class ESService {
         //boolBuilder.must(rangeQueryBuilder);
         sourceBuilder.query(boolBuilder);
         SearchRequest searchRequest = new SearchRequest(INDEX);
-        searchRequest.types(TYPE);
+        searchRequest.searchType(TYPE);
         searchRequest.source(sourceBuilder);
         try {
             SearchResponse response = client.search(searchRequest, null);
@@ -224,12 +218,12 @@ public class ESService {
 
     public void createSiteInfo(SiteMonitorEntity siteMonitor) {
         IndexRequest indexRequest = new IndexRequest(INDEX_SITE);
-        indexRequest.id(siteMonitor.getId().concat(siteMonitor.getTask()));
+        indexRequest.id(SiteMonitorEntity.genRequestId(siteMonitor));
         String source = JSON.toJSON(siteMonitor).toString();
         indexRequest.source(source, XContentType.JSON);
         try {
             IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
-            logger.error("================= createSiteInfo, indexResponse status: {}, source: {}", indexResponse.status(), source);
+            logger.info("================= createSiteInfo, indexResponse status: {}, source: {}", indexResponse.status(), source);
         } catch (IOException e) {
             logger.error("================= createSiteInfo error, id: {}, error: {} =============", indexRequest.id(), e.getMessage());
             e.printStackTrace();
@@ -238,157 +232,92 @@ public class ESService {
 
     public void modifySiteInfo(SiteMonitorEntity siteMonitor) {
         String source = JSON.toJSON(siteMonitor).toString();
-        UpdateRequest request = new UpdateRequest(INDEX_SITE, siteMonitor.getId().concat(siteMonitor.getTask()));
+        UpdateRequest request = new UpdateRequest(INDEX_SITE, SiteMonitorEntity.genRequestId(siteMonitor));
         request.doc(source, XContentType.JSON);
         try {
             UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
-            logger.error("================= createSiteInfo, indexResponse status: {}, source: {}", updateResponse.status(), source);
+            logger.info("================= createSiteInfo, indexResponse status: {}, source: {}", updateResponse.status(), source);
         } catch (IOException e) {
             logger.error("================= createSiteInfo error, id: {}, error: {} =============", request.id(), e.getMessage());
             e.printStackTrace();
         }
     }
 
-    public void querySiteInfo() {
+    public Map<String, Object> querySiteInfo(Integer pageNo, Integer limit) {
+        Map<String, Object> resMap = new HashMap<>();
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.from(0);
-        sourceBuilder.size(10);
-        sourceBuilder.fetchSource(new String[]{INDEX_SITE}, new String[]{});
-        //MatchQueryBuilder matchQueryBuilder = QueryBuilders.matchQuery("docId", "002");
-        /*TermQueryBuilder termQueryBuilder = QueryBuilders.termQuery("tag", "体育");
-        RangeQueryBuilder rangeQueryBuilder = QueryBuilders.rangeQuery("publishTime");
-        rangeQueryBuilder.gte("2018-01-26T08:00:00Z");
-        rangeQueryBuilder.lte("2018-01-26T20:00:00Z");*/
-        // TODO search (包含siteId, all status: 1 >> 1 : 0)
-        // TODO order by status desc and updateTime desc
+
+        Integer startIndex = (pageNo - 1) * limit;
+        sourceBuilder.from(startIndex);
+        sourceBuilder.size(startIndex + limit);
+        String[] includes = new String[]{"id", "siteName", "task", "status", "dataChannel", "createTime", "updateTime"};
+        sourceBuilder.fetchSource(includes, new String[]{});
+
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
-        //boolBuilder.must(matchQueryBuilder);
-        //boolBuilder.must(termQueryBuilder);
-        //boolBuilder.must(rangeQueryBuilder);
-        sourceBuilder.query(boolBuilder);
-        sourceBuilder.sort("updateTime", SortOrder.DESC);
+        sourceBuilder.query(boolBuilder)
+                .aggregation(AggregationBuilders.terms("aggreofid").field("id")
+                        .subAggregation(AggregationBuilders.stats("aggreofstatus").field("status"))
+                        //.subAggregation(AggregationBuilders.cardinality("statusaggre").field("status"))
+                )
+                //.aggregation(AggregationBuilders.terms("aggreofstatus").field("status"))
+                //.aggregation(AggregationBuilders.stats("aggreofstatus").field("status"))
+                //.size(0)
+                .sort("updateTime", SortOrder.DESC);
+
         // TODO 按站点状态聚合查询
         SearchRequest searchRequest = new SearchRequest(INDEX_SITE);
         searchRequest.source(sourceBuilder);
+        SearchResponse response = null;
         try {
-            SearchResponse response = client.search(searchRequest, null);
+            response = client.search(searchRequest, RequestOptions.DEFAULT);
+            SearchHits searchHits = response.getHits();
+            SearchHit[] hits = searchHits.getHits();
+            List<SiteMonitorEntity> list = new ArrayList<>();
+            Map<String, SiteMonitorEntity> map = new HashMap<>();
+            Arrays.stream(hits).forEach(hit -> {
+                SiteMonitorEntity sme = FastJsonConvertUtil.convertJSONToObject(hit.getSourceAsString(), SiteMonitorEntity.class);
+                if (!map.containsKey(sme.getId())) {
+                    map.put(sme.getId(), sme);
+                    list.add(sme);
+                }
+            });
 
-            logger.info("=============================== es esearch response: {} =======================", response.toString());
+            List<Aggregation> aggregations = response.getAggregations().asList();
+            List<? extends Terms.Bucket> buckets = ((ParsedStringTerms) aggregations.get(0)).getBuckets();
+            JSONArray arrayF = new JSONArray();
+            JSONArray arrayB = new JSONArray();
+            buckets.stream().forEach(b -> {
+                Object key = ((Terms.Bucket) b).getKey();
+                List<Aggregation> aggrs = ((Terms.Bucket) b).getAggregations().asList();
+                Aggregation aggregation = aggrs.get(0);
+                JSONObject json = new JSONObject();
+                if (map.containsKey(key)) {
+                    json.put("siteId", map.get(key).getId());
+                    json.put("siteName", map.get(key).getSiteName());
+                    json.put("channel", map.get(key).getDataChannel());
+                    json.put("createTime", map.get(key).getCreateTime());
+                    json.put("updateTime", map.get(key).getUpdateTime());
+                }
+                if (((ParsedStats) aggregation).getAvg() == 1L) {
+                    json.put("status", "1");
+                    arrayF.add(json);
+                } else {
+                    json.put("status", "0");
+                    arrayB.add(json);
+                }
+            });
+            arrayF.addAll(arrayB);
+            long total = searchHits.getTotalHits().value;
+            resMap.put("totalCount", total);
+            resMap.put("totalPage", Math.round((Math.ceil(total * 1.0 / limit))));
+            resMap.put("list", arrayF);
+            logger.info("============================== es esearch response: {} =======================", response.toString());
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            logger.error("============================= es esearch occure error, message: {} =======================", e.getMessage());
             e.printStackTrace();
         }
-    }
 
-    /**
-     * 根据用户输入条件进行查询
-     *
-     * @throws ParseException
-     **/
-    public ESSearchResp<DocInfo> query(ESSearchReq esSearchReq) throws ParseException {
-        /*BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        //针对keyword进行过滤
-        if (!StringUtils.isEmpty(esSearchReq.getDocType())) {
-            boolQuery.filter(QueryBuilders.termQuery(ESFieldName.DOC_TYPE, esSearchReq.getDocType()));
-        }
-        if (!StringUtils.isEmpty(esSearchReq.getAuthor())) {
-            boolQuery.filter(QueryBuilders.termQuery(ESFieldName.AUTHOR, esSearchReq.getAuthor()));
-        }
-
-        //针对text进行全文检索 查询docName OR docSummary满足匹配要求的结果
-        if (!StringUtils.isEmpty(esSearchReq.getInputKeyword())) {
-            boolQuery.must(QueryBuilders.multiMatchQuery(esSearchReq.getInputKeyword(), ESFieldName.DOC_NAME, ESFieldName.DOC_SUMMARY));
-        }
-
-        //针对时间进行范围查询
-        RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery(ESFieldName.CREATE_TIME);
-        if (esSearchReq.getBeginTime() != null) {
-            boolQuery.filter(rangeQuery.format("yyyy-MM-dd HH:mm:ss").gte(esSearchReq.getBeginTime()));
-        }
-        if (esSearchReq.getEndTime() != null) {
-            boolQuery.filter(rangeQuery.format("yyyy-MM-dd HH:mm:ss").lte(esSearchReq.getEndTime()));
-        }
-
-        //针对数组查询
-        if (esSearchReq.getTags().size() > 0) {
-            boolQuery.filter(QueryBuilders.termsQuery(ESFieldName.TAGS, esSearchReq.getTags()));
-        }
-
-        //高亮显示
-        HighlightBuilder highlightBuilder = new HighlightBuilder();
-        highlightBuilder.preTags("<strong>");
-        highlightBuilder.postTags("</strong>");
-        highlightBuilder.field(ESFieldName.DOC_NAME).field(ESFieldName.DOC_SUMMARY);
-
-        //排序 分页
-        SearchRequestBuilder searchRequestBuilder = transportClient.prepareSearch(INDEX).setTypes(TYPE).setQuery(boolQuery)
-                //.addSort(ESFieldName.CREATE_TIME,SortOrder.DESC)//默认是按照相关性的得分来排序的
-                .setFrom(esSearchReq.getFrom())
-                .setSize(esSearchReq.getSize())
-                .highlighter(highlightBuilder);//对匹配内容高亮显示
-        //.setFetchSource(ESFieldName.DOC_ID, null);//可以设置es查询返回指定字段，默认为全部返回
-
-        logger.info(searchRequestBuilder.toString());
-
-        SearchResponse searchResponse = searchRequestBuilder.get();
-        List<DocInfo> result = new ArrayList<>();
-
-        if (searchResponse.status() != RestStatus.OK) {
-            logger.error("测试boolean查询失败：" + searchRequestBuilder);
-            return new ESSearchResp<DocInfo>(0, result);
-        } else {
-			for (SearchHit hit : searchResponse.getHits()) {
-				DocInfo docInfo = new DocInfo();
-				docInfo.setDocId(Long.parseLong((String)hit.getSource().get(ESFieldName.DOC_ID)));
-				Map<String, HighlightField> highlightFields = hit.getHighlightFields();
-				//如果有高亮信息，用高亮信息 这样前端取出相应值就能直接在html中展示了
-				if(highlightFields.get(ESFieldName.DOC_NAME)!=null) {
-					docInfo.setDocName(highlightFields.get(ESFieldName.DOC_NAME).getFragments()[0].string());
-				}else {
-					docInfo.setDocName((String)hit.getSource().get(ESFieldName.DOC_NAME));	
-				}
-				if(highlightFields.get(ESFieldName.DOC_SUMMARY)!=null) {
-					docInfo.setDocSummary(highlightFields.get(ESFieldName.DOC_SUMMARY).getFragments()[0].string());
-				}else {
-					docInfo.setDocSummary((String)hit.getSource().get(ESFieldName.DOC_SUMMARY));	
-				}
-				docInfo.setAuthor((String)hit.getSource().get(ESFieldName.AUTHOR));
-				docInfo.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse((String)hit.getSource().get(ESFieldName.CREATE_TIME)));
-				result.add(docInfo);
-			}
-            return new ESSearchResp<DocInfo>(searchResponse.getHits().getTotalHits(), result);
-        }*/
-        return null;
-    }
-
-    /**
-     * 聚合查询
-     */
-    public long aggregationQuery(String author) {
-        /*BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-        if (!StringUtils.isEmpty(author)) {
-            boolQuery.filter(QueryBuilders.termQuery(ESFieldName.AUTHOR, author));
-        }
-        SearchRequestBuilder searchRequestBuilder = transportClient.prepareSearch(INDEX).setTypes(TYPE)
-                .setQuery(boolQuery)
-                .addAggregation(AggregationBuilders.terms(ESFieldName.AGGREGATION_OF_AUTHOR)//聚合结果对应的名称
-                        .field(ESFieldName.AUTHOR))//对那个字段执行聚合 类似group by后面的字段
-                .setSize(0);//表示只要聚合结果，不要其他具体的数据（作者 文档名 时间等等）
-
-        logger.info(searchRequestBuilder.toString());
-
-        SearchResponse searchResponse = searchRequestBuilder.get();
-
-        if (searchResponse.status() != RestStatus.OK) {
-            logger.error("测试聚合查询失败：" + searchRequestBuilder);
-        } else {
-            Terms terms = searchResponse.getAggregations().get(ESFieldName.AGGREGATION_OF_AUTHOR);
-            if (terms.getBuckets() != null && !terms.getBuckets().isEmpty()) {
-                //这里查出指定作者一共有多少篇文章
-                return terms.getBucketByKey(author).getDocCount();
-            }
-        }*/
-        return 0L;
+        return resMap;
     }
 
     public void mappingSiteInfo(JSONObject json) {
@@ -403,13 +332,36 @@ public class ESService {
         properties.put("age", null);
         properties.put("address", null);*/
 
-        Map<String, Object> mapping = new HashMap<>();
-        mapping.put("properties", json.getString("mappings"));
+        Map<String, Object> parseMap = FastJsonConvertUtil.json2Map(json.toString());
+        /*Map<String, Object> mapping = new HashMap<>();
+        mapping.put("properties", parseMap.get("mappings"));
 
         Map<String, Object> settings = new HashMap<>();
-        mapping.put("properties", json.getString("settings"));
+        mapping.put("properties", json.getString("settings"));*/
 
-        CreateIndexRequest request = new CreateIndexRequest("users").mapping(mapping).settings(settings);
+        CreateIndexRequest request = new CreateIndexRequest(INDEX_SITE).mapping((Map<String, ?>) parseMap.get("mappings"))
+                .settings((Map<String, ?>) parseMap.get("settings"));
         template.opsForIndices().create(request);
+    }
+
+    public void deleteSiteInfo(SiteMonitorEntity siteMonitor) {
+        DeleteRequest request = new DeleteRequest(INDEX_SITE, SiteMonitorEntity.genRequestId(siteMonitor));
+        ActionListener<DeleteResponse> listener = new ActionListener<DeleteResponse>() {
+
+            @Override
+            public void onResponse(DeleteResponse deleteResponse) {
+                logger.info("异步删除成功(的处理)!");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                logger.info("异步删除失败的处理!");
+            }
+        };
+        try {
+            client.deleteAsync(request, RequestOptions.DEFAULT, listener);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

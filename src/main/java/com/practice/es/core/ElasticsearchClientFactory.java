@@ -8,6 +8,7 @@ import java.util.Map;
  * @author wangl
  * @date 2019-04-30
  */
+
 public class ElasticsearchClientFactory {
 
     private RestClientPool<RestHighLevelClient> pool;

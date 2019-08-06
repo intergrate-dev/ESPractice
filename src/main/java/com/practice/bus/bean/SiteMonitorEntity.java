@@ -93,4 +93,8 @@ public class SiteMonitorEntity {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    public static String genRequestId(SiteMonitorEntity siteMonitor) {
+        return siteMonitor.getId().concat("-").concat(siteMonitor.getTask());
+    }
 }
