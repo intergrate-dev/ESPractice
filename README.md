@@ -25,3 +25,359 @@
 3. 执行MQ测试，测试MQ的功能
 ### 其他：
 可以参看[这里](https://www.jianshu.com/p/198d4c3fbea5)，对整个ES的开发流程有简单说明
+
+
+
+# es-client-demo
+spring boot2 整合elasticsearch 7.2 
+https://github.com/baiczsy/elasticsearch-client-spring-boot-starter
+https://github.com/intergrate-dev/elasticsearch-tool
+https://github.com/baiczsy/spring-elasticsearch-client
+
+https://blog.csdn.net/u013515384/article/details/84994763
+
+https://www.cnblogs.com/WeidLang/p/10245659.html
+
+
+
+RestHighLevelClient 模糊搜索
+https://www.cnblogs.com/wangrudong003/p/10959525.html
+https://blog.csdn.net/paditang/article/details/78802799
+https://gitee.com/wzlee/ESClientRHL
+
+
+
+#### must、should、must_not
+https://www.itsvse.com/forum.php?mod=viewthread&tid=6334&extra=&ordertype=1
+
+
+
+https://blog.csdn.net/weixin_42393758/article/details/84581314
+
+
+
+### Api(DSL)
+
+https://www.jianshu.com/p/3cb205b5354a
+
+mode
+```
+{
+  "query": { 
+    "bool": { 
+      "must": [
+        { "match": { "title":   "Search"        }},
+        { "match": { "content": "Elasticsearch" }}
+      ],
+      "filter": [ 
+        { "term":  { "status": "published" }},
+        { "range": { "publish_date": { "gte": "2015-01-01" }}}
+      ]
+    }
+  }
+}
+```
+
+```
+list all indices
+http://127.0.0.1:9200/_cat/indices
+
+view fields type
+http://127.0.0.1:9200/megacorp/_mapping
+
+create index
+curl -XPUT 'http://10.72.25.10:9200/books/' -d '{  
+    "mappings": {
+        "IT": {
+            "properties": {
+                "id": {"type": "keyword"},      
+                "title": {"type": "keyword"},      
+                "price": {"type": "float"},      
+                "year": {"type": "integer"},      
+                "description": {"type": "keyword"},      
+                "tel": {"type": "keyword"},
+                "d_val": {"type": "date", "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"}
+            }    
+         }  
+    }
+}
+```
+
+批量加载数据
+```
+$ cat book.json
+    {"index":{ "_index": "books", "_type": "IT", "_id": "1" }}
+    {"id":"1","title":"Java Book","language":"java","author":"Bruce Eckel","price":70.20,"year":2007,"description":"Java must read", "tel":"15313016138", "d_val":"2018-11-01 12:25:36"}
+    {"index":{ "_index": "books", "_type": "IT", "_id": "2" }}
+    {"id":"2","title":"Java perform","language":"java","author":"John Li","price":46.50,"year":2012,"description":"permformance ..", "tel":"13548621254", "d_val":"2018-11-01 08:25:50"}
+    {"index":{ "_index": "books", "_type": "IT", "_id": "3" }}
+    {"id":"3","title":"Python compte","language":"python","author":"Tohma Ke","price":81.40,"year":2016,"description":"py ...", "tel":"13245687956", "d_val":"2018-11-01 19:30:20"}
+    {"index":{ "_index": "books", "_type": "IT", "_id": "4" }}
+    {"id":"4","title":"Python base","language":"python","author":"Tomash Si","price":54.50,"year": 2014,"description":"py base....", "tel":"aefda1567fdsa13", "d_val":"2018-09-01"}
+    {"index":{ "_index": "books", "_type": "IT", "_id": "5" }}
+    {"id":"5","title":"JavaScript high","language":"javascript","author":"Nicholas C.Zakas","price":66.40,"year":2012,"description":"JavaScript.....", "tel":"a14512dfa", "d_val":"2018-08-01"}
+
+$ curl -XPOST "http://10.72.25.10:9200/_bulk?pretty" --data-binary @book.json
+```
+
+delete index
+DELETE http://10.72.25.10:9200/books
+
+
+
+#### 1. insert
+```
+PUT     http://127.0.0.1:9200/megacorp/employee/3
+
+requet body
+{
+    "first_name": "Douglas",
+    "last_name": "Fir",
+    "age": 35,
+    "about": "I like to build cabinets",
+    "interests": [
+        "forestry"
+    ]
+}
+```
+
+#### 2. search
+GET     /megacorp/employee/1
+
+
+GET     http://127.0.0.1:9200/megacorp/employee/3
+
+
+GET /megacorp/employee/_search
+```
+{
+
+    "query": {
+        "match_all": {}
+    }
+}
+
+
+{
+    "query" : {
+        "match" : {
+            "last_name" : "Smith"
+        }
+    }
+}
+or
+{  
+    "size":10,
+    "query": {
+        "bool" : {
+           "must" : {
+              "match" : {
+                "last_name" : "Smith"
+              }
+           }
+         }
+    }
+}
+
+```
+
+不包含
+```
+{  
+    "size":10,
+    "query": {
+        "bool" : {
+           "must_not" : {
+              "match" : {
+                "last_name" : "Smith"
+              }
+           }
+         }
+    }
+}
+
+{
+    "query": {
+        "range": {
+            "age": {
+                "gt": 30
+            }
+        }
+    }
+}
+```
+
+多条件
+```
+{
+    "size": 10,
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "match": {
+                        "last_name": "Smith"
+                    }
+                },
+                {
+                    "match": {
+                        "age": "25"
+                    }
+                }
+            ]
+        }
+    }
+}
+
+{
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "match": {
+                        "last_name": "Smith"
+                    }
+                }
+            ],
+            "filter": [
+                {
+                    "range": {
+                        "age": {
+                            "gte": "25"
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}
+```
+
+高亮
+```
+{
+    "query" : {
+        "match_phrase" : {
+            "字段" : "搜索值"
+        }
+    },
+    "highlight": {
+        "fields" : {
+            "字段" : {}
+        }
+    }
+}
+```
+
+
+统计
+1. 基本统计
+GET     http://127.0.0.1:9200/megacorp/employee/_search
+```
+{
+    "size": 0, # 不加，hits.hits有记录
+    "aggs": {
+        "grades_stat": {
+            "stats": {
+                "field": "age"
+            }
+        }
+    }
+}
+```
+
+分组聚合
+```
+{
+    "size": 0,
+    "aggs": {
+        "user_type": {
+            "terms": {
+                "field": "age"
+            }
+        }
+    }
+}
+
+{  
+   "query": {  
+     "match": {  
+       "last_name": "Zhong"  
+     }  
+   },  
+   "aggs": {  
+     "all_interests": {  
+       "terms": {  
+         "field": "interests"  
+       }  
+     }  
+   }  
+ }
+
+
+```
+
+
+2. 高级统计
+```
+{  
+    "size": 0,
+    "aggs": {
+        "grades_stat": {
+            "extended_stats": {
+                "field":"price"
+            }
+        }
+    }
+}
+```
+
+
+### 全文检索
+GET     http://127.0.0.1:9200/megacorp/employee/_search
+
+request body
+```
+{
+    "query": {
+        "match": {
+            "about": "rock climbing"
+        }
+    }
+}
+```
+
+
+查询DSL进阶
+
+https://blog.csdn.net/icool_ali/article/details/81666628
+https://www.cnblogs.com/miqi1992/p/5708553.html
+https://blog.csdn.net/fanrenxiang/article/details/86477019
+
+match 匹配 分词
+
+multi_match多值匹配
+{
+  "query": {
+    "multi_match": {
+      "query": "值",
+      "fields": [
+        "name",
+        "age"
+      ]
+    }
+  }
+}
+
+term 精确匹配 不分词
+
+{
+  "query": {
+    "term": {
+      "ip": "值"
+    }
+  }
+}
+
+
+

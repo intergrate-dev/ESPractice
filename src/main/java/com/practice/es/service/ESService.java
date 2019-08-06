@@ -3,14 +3,16 @@ package com.practice.es.service;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.practice.bus.bean.SiteMonitorEntity;
+import com.practice.es.core.RestClientTemplate;
+import org.apache.http.HttpEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.nio.entity.NStringEntity;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -24,9 +26,11 @@ import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.seqno.RetentionLeaseActions;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -61,6 +65,9 @@ public class ESService {
 
     @Autowired
     private RestHighLevelClient client;
+
+    @Autowired
+    private RestClientTemplate template;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -384,4 +391,25 @@ public class ESService {
         return 0L;
     }
 
+    public void mappingSiteInfo(JSONObject json) {
+        /*HttpEntity entity = new NStringEntity(json.toString(), ContentType.APPLICATION_JSON);
+        // 使用RestClient进行操作 而非rhlClient
+        RetentionLeaseActions.Response response = client.performRequest("put", "/demo", Collections.<String, String> emptyMap(),
+                entity);
+        System.out.println(response);*/
+
+        /*Map<String, Object> properties = new HashMap<>();
+        properties.put("name", null);
+        properties.put("age", null);
+        properties.put("address", null);*/
+
+        Map<String, Object> mapping = new HashMap<>();
+        mapping.put("properties", json.getString("mappings"));
+
+        Map<String, Object> settings = new HashMap<>();
+        mapping.put("properties", json.getString("settings"));
+
+        CreateIndexRequest request = new CreateIndexRequest("users").mapping(mapping).settings(settings);
+        template.opsForIndices().create(request);
+    }
 }

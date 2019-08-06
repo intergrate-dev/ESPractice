@@ -1,6 +1,9 @@
 package com.practice.bus.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.practice.es.service.ESService;
+import com.practice.util.JsonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -80,9 +83,19 @@ public class DocController {
 		return "delete success";
 	}
 
-	/**
-	 * 删除文档
-	 */
+
+	@RequestMapping("/mappingSiteInfo")
+	@ResponseBody
+	public String mappingSiteInfo(){
+
+		String path = DocController.class.getClassLoader().getResource("mapping-siteMonitor.json").getPath();
+		String s = JsonUtil.readJsonFile(path);
+		JSONObject json = JSON.parseObject(s);
+
+		esService.mappingSiteInfo(json);
+		return "delete success";
+	}
+
 	@RequestMapping("/createSiteInfo")
 	@ResponseBody
 	public String createSiteInfo() {
@@ -92,9 +105,6 @@ public class DocController {
 	}
 
 
-	/**
-	 * 删除文档
-	 */
 	@RequestMapping("/modifySiteInfo")
 	@ResponseBody
 	public String modifySiteInfo() {
@@ -104,9 +114,6 @@ public class DocController {
 	}
 
 
-	/**
-	 * 删除文档
-	 */
 	@RequestMapping("/querySiteInfo")
 	@ResponseBody
 	public String querySiteInfo() {
