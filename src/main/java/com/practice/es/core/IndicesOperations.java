@@ -6,10 +6,6 @@ import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 
-/**
- * @author wangl
- * @date 2019-05-08
- */
 public interface IndicesOperations {
 
     CreateIndexResponse create(CreateIndexRequest request);

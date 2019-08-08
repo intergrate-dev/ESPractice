@@ -1,10 +1,13 @@
 package com.practice.es.core;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RestClientConfig {
+    @Value("${spring.data.elasticsearch.cluster-name}")
+    private String esIP;
 
     /**
      * 配置RestClient连接池，基于commons-pool2
@@ -24,7 +27,7 @@ public class RestClientConfig {
      */
     @Bean
     public RestClientConfiguration restClientConfiguration(){
-        RestClientStandaloneConfiguration configuration = new RestClientStandaloneConfiguration("172.19.207.201",9200);
+        RestClientStandaloneConfiguration configuration = new RestClientStandaloneConfiguration(esIP,9200);
         configuration.setConnectTimeout(1000);
         configuration.setConnectionRequestTimeout(500);
         configuration.setSocketTimeout(20000);
@@ -34,27 +37,11 @@ public class RestClientConfig {
     }
 
     /**
-     * 装配RestClient配置类(集群)
-     */
-    /*@Bean
-    public RestClientConfiguration clusterClientConfiguration(){
-        List<ElasticsearchNode> hosts = new ArrayList<>();
-        hosts.add(new ElasticsearchNode("localhost", 9200));
-        hosts.add(new ElasticsearchNode("localhost", 9201));
-        RestClientClusterConfiguration configuration = new RestClientClusterConfiguration(hosts);
-        configuration.setConnectTimeout(1000);
-        configuration.setConnectionRequestTimeout(500);
-        configuration.setSocketTimeout(20000);
-        configuration.setMaxConnTotal(100);
-        configuration.setMaxConnPerRoute(100);
-        return configuration;
-    }*/
-
-    /**
      * 装配ElasticsearchClientFactory
      */
     @Bean
     public ElasticsearchClientFactory elasticsearchClientFactory(RestClientConfiguration configuration, RestClientPoolConfig poolConfig){
+        configuration = new RestClientStandaloneConfiguration(esIP,9200);
         ElasticsearchClientFactory factory = new ElasticsearchClientFactory(configuration, poolConfig);
         //如果需要，可以设置默认的请求头信息
         //Map<String, String> headers = new HashMap<>();

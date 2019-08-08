@@ -2,10 +2,6 @@ package com.practice.es.core;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
-/**
- * @author wangl
- * @date 2019-05-08
- */
 public class RestClientPoolConfig extends GenericObjectPoolConfig {
 
     public RestClientPoolConfig() {

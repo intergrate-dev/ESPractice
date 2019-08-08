@@ -9,10 +9,6 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import java.io.Closeable;
 import java.util.NoSuchElementException;
 
-/**
- * @author wangl
- * @date 2019-05-08
- */
 public class RestClientPool<T> implements Closeable {
 
     private GenericObjectPool<T> internalPool;

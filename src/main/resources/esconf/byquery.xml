@@ -1,0 +1,24 @@
+<properties>
+    <property name="updateByQuery">
+        <![CDATA[
+         {
+            "query": {
+                "bool": {
+                    "filter": [
+                        {
+                            "terms": {
+                                "id.keyword": [#[id]]
+                            }
+                        },
+                        {
+                            "terms": {
+                                "task.keyword": [#[task]]
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+        ]]>
+    </property>
+</properties>

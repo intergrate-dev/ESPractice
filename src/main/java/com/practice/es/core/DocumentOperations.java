@@ -12,10 +12,6 @@ import org.elasticsearch.action.update.UpdateResponse;
 
 import java.util.Map;
 
-/**
- * @author wangl
- * @date 2019-04-30
- */
 public interface DocumentOperations {
 
     <T> T execute(RestClientCallback<T> callback);

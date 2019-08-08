@@ -1,9 +1,5 @@
 package com.practice.es.core;
 
-/**
- * @author wangl
- * @date 2019-04-30
- */
 public class ElasticsearchAccessException extends RuntimeException {
 
     public ElasticsearchAccessException(String msg) {

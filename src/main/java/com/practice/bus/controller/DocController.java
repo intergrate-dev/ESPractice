@@ -3,7 +3,6 @@ package com.practice.bus.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.practice.bus.bean.SiteMonitorEntity;
-import com.practice.common.PageResult;
 import com.practice.common.ResponseObject;
 import com.practice.common.SystemConstant;
 import com.practice.es.service.ESService;
@@ -93,7 +92,7 @@ public class DocController {
     @ResponseBody
     public String mappingSiteInfo() {
 
-        String path = DocController.class.getClassLoader().getResource("mapping-siteMonitor.json").getPath();
+        String path = DocController.class.getClassLoader().getResource("esconf/mapping-siteMonitor.json").getPath();
         String s = JsonUtil.readJsonFile(path);
         JSONObject json = JSON.parseObject(s);
 
@@ -108,7 +107,7 @@ public class DocController {
         String define = "schedule_";
         String[] channels = {"网站", "微信", "微博", "APP"};
         SiteMonitorEntity sme = null;
-        for (int i = 1; i < 6; i++) {
+        for (int i = 1; i < 3; i++) {
             sme = new SiteMonitorEntity();
             sme.setId("sid_00".concat(String.valueOf(i)));
             sme.setSiteName(define.concat(String.valueOf(i)));
@@ -127,10 +126,10 @@ public class DocController {
     @ResponseBody
     public String modifySiteInfo() {
         SiteMonitorEntity sme = null;
-        for (int i = 1; i < 4; i++) {
+        for (int i = 1; i < 2; i++) {
             sme = new SiteMonitorEntity();
             sme.setId("sid_00".concat(String.valueOf(i)));
-            sme.setStatus(String.valueOf(0));
+            sme.setStatus(String.valueOf(3));
             sme.setTask("task_".concat(String.valueOf(i)));
             sme.setUpdateTime(new Date());
             esService.modifySiteInfo(sme);
@@ -143,14 +142,7 @@ public class DocController {
     @ResponseBody
     public ResponseObject querySiteInfo(@RequestParam(name = "pageNo", required = true) Integer pageNo,
                                 @RequestParam(name = "limit", required = true) Integer limit) {
-
-        //PageResult result = new PageResult();
         Map<String, Object> queryMap =  esService.querySiteInfo(pageNo, limit);
-        /*result.setPageNo(pageNo);
-        result.setPageSize(limit);
-        result.setResult((List) queryMap.get("list"));
-        result.setTotalCount((Long) queryMap.get("totalCount"));
-        result.setTotalPage((Long) queryMap.get("totalPage"));*/
         queryMap.put("pageNo", pageNo);
         queryMap.put("limit", limit);
         return ResponseObject.newSuccessResponseObject(queryMap, SystemConstant.REQ_SUCCESS);

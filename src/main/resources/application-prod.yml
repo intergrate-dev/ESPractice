@@ -1,0 +1,26 @@
+server:
+  port:  8080
+
+# ES & rabbitmq
+# virtual-host: rabbit_vhost
+spring:
+  data:
+    elasticsearch:
+      cluster-name: 118.31.239.157
+  rabbitmq:
+    host: 118.31.239.157
+    port: 5672
+    username: user
+    password: FN9725
+    virtual-host: rabbit_vhost
+
+# logbak
+logging:
+  config: classpath:logback-spring.xml
+
+# app config
+app:
+  config:
+    identify: new
+
+

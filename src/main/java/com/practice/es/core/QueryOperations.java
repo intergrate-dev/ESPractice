@@ -7,10 +7,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author wangl
- * @date 2019-05-01
- */
 public interface QueryOperations {
 
     List<Map<String, Object>> match(String index, String field, String param);

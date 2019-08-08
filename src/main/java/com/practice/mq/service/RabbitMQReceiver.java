@@ -39,8 +39,9 @@ public class RabbitMQReceiver {
         RabbitMessage rabbitMessage = JSONObject.toJavaObject(content, RabbitMessage.class);
         EnumOperation operation = rabbitMessage.getOperation();
         SiteMonitorEntity siteMonitor = rabbitMessage.getSiteMonitor();
-        logger.info("==================== recieve handleMessage, siteId & task & status:{} ---- {} ---- {}, operation: {}, time: {}  ======================",
-                siteMonitor.getId(), siteMonitor.getTask(), siteMonitor.getStatus(), operation, DateParseUtil.dateTimeToString(new Date()));
+        logger.info("==================== recieve handleMessage, operation: {}, info:{} ---- {} ---- {} ---- updateTime: {}, at now:  {}======================",
+                operation, siteMonitor.getId(), siteMonitor.getTask(), siteMonitor.getStatus(), siteMonitor.getUpdateTime(),
+                DateParseUtil.dateTimeToString(new Date()));
 
         switch (operation) {
             case ADD:

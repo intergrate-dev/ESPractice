@@ -2,6 +2,7 @@ server:
   port:  8080
 
 # ES & rabbitmq
+# virtual-host: rabbit_vhost
 spring:
   data:
     elasticsearch:
@@ -9,13 +10,19 @@ spring:
   rabbitmq:
     host: 172.19.207.201
     port: 5672
-    virtual-host: rabbit_vhost
     username: admin
     password: admin
+    virtual-host: rabbit_vhost
 
 # logbak
+logging:
+  config: classpath:logback-spring.xml
 
-
+# app config
+app:
+  config:
+    identify: local
+    queue: local_sitemonitor_queue
 
 
 

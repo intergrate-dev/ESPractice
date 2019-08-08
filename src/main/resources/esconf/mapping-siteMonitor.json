@@ -6,7 +6,8 @@
     "dynamic": true,
     "properties": {
       "id": {
-        "type": "keyword"
+        "type": "text",
+        "fielddata": true
       },
       "siteName": {
         "type": "text"

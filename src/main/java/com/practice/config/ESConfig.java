@@ -7,12 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * EsConfig:ES配置类
- *
- * @author zhangxiaoxiang
- * @date: 2019/07/18
- */
 @Configuration
 public class ESConfig {
     @Value("${spring.data.elasticsearch.cluster-name}")

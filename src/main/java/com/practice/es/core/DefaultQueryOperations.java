@@ -16,10 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author wangl
- * @date 2019-05-01
- */
 class DefaultQueryOperations implements QueryOperations {
 
     private RestClientTemplate template;

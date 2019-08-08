@@ -7,10 +7,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 
-/**
- * @author wangl
- * @date 2019-05-08
- */
 class DefaultIndicesOperations implements IndicesOperations{
 
     private RestClientTemplate template;

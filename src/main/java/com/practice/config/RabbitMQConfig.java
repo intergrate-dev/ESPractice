@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,9 +21,9 @@ import com.practice.mq.service.RabbitMQReceiver;
  */
 @Configuration
 public class RabbitMQConfig {
+	//"local_sitemonitor_queue";
 	public static final String QUEUE_NAME = "index_queue_1";
 
-	// 向RabbitMQ发消息时，不用默认的序列化方式，使用json格式
 	@Bean
 	public MessageConverter messageConverter() {
 		return new Jackson2JsonMessageConverter();

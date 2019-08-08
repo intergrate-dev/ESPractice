@@ -24,24 +24,30 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.reindex.*;
+import org.elasticsearch.script.Script;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.ParsedStats;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.frameworkset.elasticsearch.ElasticSearchHelper;
+import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.text.ParseException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 
 /**
  * 需要提前使用REST AIP创建索引 映射
@@ -232,13 +238,18 @@ public class ESService {
 
     public void modifySiteInfo(SiteMonitorEntity siteMonitor) {
         String source = JSON.toJSON(siteMonitor).toString();
-        UpdateRequest request = new UpdateRequest(INDEX_SITE, SiteMonitorEntity.genRequestId(siteMonitor));
-        request.doc(source, XContentType.JSON);
         try {
-            UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
-            logger.info("================= createSiteInfo, indexResponse status: {}, source: {}", updateResponse.status(), source);
+            MatchQueryBuilder builder_1 = QueryBuilders.matchQuery("id", siteMonitor.getId());
+            MatchQueryBuilder builder_2 = QueryBuilders.matchQuery("task", siteMonitor.getTask());
+            BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+            boolBuilder.must(builder_1).must(builder_2);
+            Script script = new Script("ctx._source.status = ".concat(siteMonitor.getStatus()));
+            UpdateByQueryRequest request = new UpdateByQueryRequest(INDEX_SITE).setQuery(boolBuilder).setScript(script);
+            request.setConflicts("proceed");
+            BulkByScrollResponse response = client.updateByQuery(request, RequestOptions.DEFAULT);
+            logger.info("================= modifySiteInfo, update item: {}, source: {}", response.getStatus().getTotal(), source);
         } catch (IOException e) {
-            logger.error("================= createSiteInfo error, id: {}, error: {} =============", request.id(), e.getMessage());
+            logger.error("================= modifySiteInfo error, id: {}, error: {} =============", siteMonitor.getId(), e.getMessage());
             e.printStackTrace();
         }
     }
@@ -260,7 +271,6 @@ public class ESService {
                         //.subAggregation(AggregationBuilders.cardinality("statusaggre").field("status"))
                 )
                 //.aggregation(AggregationBuilders.terms("aggreofstatus").field("status"))
-                //.aggregation(AggregationBuilders.stats("aggreofstatus").field("status"))
                 //.size(0)
                 .sort("updateTime", SortOrder.DESC);
 
@@ -272,48 +282,58 @@ public class ESService {
             response = client.search(searchRequest, RequestOptions.DEFAULT);
             SearchHits searchHits = response.getHits();
             SearchHit[] hits = searchHits.getHits();
-            List<SiteMonitorEntity> list = new ArrayList<>();
             Map<String, SiteMonitorEntity> map = new HashMap<>();
+            List<SiteMonitorEntity> list = new ArrayList<>();
             Arrays.stream(hits).forEach(hit -> {
                 SiteMonitorEntity sme = FastJsonConvertUtil.convertJSONToObject(hit.getSourceAsString(), SiteMonitorEntity.class);
                 if (!map.containsKey(sme.getId())) {
                     map.put(sme.getId(), sme);
-                    list.add(sme);
                 }
+                list.add(sme);
             });
 
             List<Aggregation> aggregations = response.getAggregations().asList();
             List<? extends Terms.Bucket> buckets = ((ParsedStringTerms) aggregations.get(0)).getBuckets();
+
             JSONArray arrayF = new JSONArray();
             JSONArray arrayB = new JSONArray();
             buckets.stream().forEach(b -> {
                 Object key = ((Terms.Bucket) b).getKey();
                 List<Aggregation> aggrs = ((Terms.Bucket) b).getAggregations().asList();
-                Aggregation aggregation = aggrs.get(0);
-                JSONObject json = new JSONObject();
-                if (map.containsKey(key)) {
-                    json.put("siteId", map.get(key).getId());
-                    json.put("siteName", map.get(key).getSiteName());
-                    json.put("channel", map.get(key).getDataChannel());
-                    json.put("createTime", map.get(key).getCreateTime());
-                    json.put("updateTime", map.get(key).getUpdateTime());
-                }
-                if (((ParsedStats) aggregation).getAvg() == 1L) {
-                    json.put("status", "1");
-                    arrayF.add(json);
-                } else {
-                    json.put("status", "0");
-                    arrayB.add(json);
+                if (aggrs != null && aggrs.size() > 0) {
+                    Aggregation aggregation = aggrs.get(0);
+                    JSONObject json = new JSONObject();
+                    if (map.containsKey(key)) {
+                        json.put("siteId", map.get(key).getId());
+                        json.put("siteName", map.get(key).getSiteName());
+                        json.put("channel", map.get(key).getDataChannel());
+                        json.put("createTime", map.get(key).getCreateTime());
+                        json.put("updateTime", map.get(key).getUpdateTime());
+                        if (((ParsedStats) aggregation).getAvg() == 1L) {
+                            json.put("status", "1");
+                            arrayF.add(json);
+                        } else {
+                            json.put("status", "0");
+                            arrayB.add(json);
+                        }
+                    }
                 }
             });
             arrayF.addAll(arrayB);
+
             long total = searchHits.getTotalHits().value;
             resMap.put("totalCount", total);
             resMap.put("totalPage", Math.round((Math.ceil(total * 1.0 / limit))));
-            resMap.put("list", arrayF);
-            logger.info("============================== es esearch response: {} =======================", response.toString());
+
+
+            //resMap.put("list", arrayF);
+            resMap.put("list", list);
+             logger.info("============================== es esearch response: {} =======================", response.toString());
         } catch (IOException e) {
-            logger.error("============================= es esearch occure error, message: {} =======================", e.getMessage());
+            logger.error("============================= es esearch occure IOException, message: {} =======================", e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("============================= es esearch occure Exception, message: {} =======================", e.getMessage());
             e.printStackTrace();
         }
 

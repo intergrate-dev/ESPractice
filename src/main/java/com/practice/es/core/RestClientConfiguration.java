@@ -2,10 +2,6 @@ package com.practice.es.core;
 
 import org.apache.http.HttpHost;
 
-/**
- * @author wangl
- * @date 2019-04-30
- */
 public abstract class RestClientConfiguration {
 
     private int connectTimeout = -1;

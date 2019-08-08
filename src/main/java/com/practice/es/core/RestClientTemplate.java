@@ -17,10 +17,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Map;
 
-/**
- * @author wangl
- * @date 2019-04-30
- */
 @Component
 public class RestClientTemplate extends RestClientAccessor implements DocumentOperations {
 

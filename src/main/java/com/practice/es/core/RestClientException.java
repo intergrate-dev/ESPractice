@@ -1,9 +1,5 @@
 package com.practice.es.core;
 
-/**
- * @author wangl
- * @date 2019-05-08
- */
 public class RestClientException extends RuntimeException {
 
     public RestClientException(String message) {

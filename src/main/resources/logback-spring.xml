@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+
+    <contextName>Logback For BigScreen</contextName>
+
+    <!-- 设置log日志存放地址 -->
+    <!--（改） 单环境设置 -->
+    <property name="LOG_HOME" value="/var/log/ESPractice/logs" />
+
+    <!-- 多环境设置 （如果你需要设置区分 生产环境，测试环境...）-->
+    <!-- 如果需要设置多环境的配置，只设置以下注释内容是不够的，还需要给每个环境设置对应的配置文件如（application-dev.properties）-->
+   <!--  
+   <springProfile name="linux">
+        <property name="LOG_HOME" value="/home/logger/mobile_log" />
+    </springProfile>
+    <springProfile name="dev">
+        <property name="LOG_HOME" value="D:/logger/log4j" />
+    </springProfile>
+    <springProfile name="test">
+        <property name="LOG_HOME" value="D:/logger/log" />
+    </springProfile>
+    <springProfile name="prod">
+        <property name="LOG_HOME" value="D:/logger/log" />
+    -->
+
+
+    <!-- 控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoder默认配置为PartternLayoutEncoder -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{80} -%msg%n</pattern>
+        </encoder>
+        <target>System.out</target>
+    </appender>
+
+    <!-- 按照每天生成日志文件 -->
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件输出的文件名 ,每天保存（侧翻）一次 -->
+            <FileNamePattern>${LOG_HOME}/project-%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+            <!--日志文件保留天数及日志分割时的日志大小限制-->
+            <maxFileSize>100MB</maxFileSize>
+			<maxHistory>15</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} -%msg%n</pattern>
+        </encoder>
+    </appender>
+     
+    <!-- 全局，控制台遇到INFO及以上级别就进行输出 -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="ROLLING_FILE" />
+    </root>
+
+</configuration>
