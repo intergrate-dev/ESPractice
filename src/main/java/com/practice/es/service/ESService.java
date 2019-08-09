@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.frameworkset.util.RegexUtil;
 import com.practice.bus.bean.DocInfo;
 import com.practice.bus.bean.SiteMonitorEntity;
 import com.practice.es.core.RestClientTemplate;
@@ -258,21 +259,22 @@ public class ESService {
         Map<String, Object> resMap = new HashMap<>();
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
-        Integer startIndex = (pageNo - 1) * limit;
-        sourceBuilder.from(startIndex);
-        sourceBuilder.size(startIndex + limit);
+        Integer from = 0;
+        Integer offSize = 5000;
+        sourceBuilder.from(from);
+        sourceBuilder.size(offSize);
         String[] includes = new String[]{"id", "siteName", "task", "status", "dataChannel", "createTime", "updateTime"};
         sourceBuilder.fetchSource(includes, new String[]{});
 
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolBuilder)
-                .aggregation(AggregationBuilders.terms("aggreofid").field("id")
-                        .subAggregation(AggregationBuilders.stats("aggreofstatus").field("status"))
+                .aggregation(AggregationBuilders.terms("aggreofid").field("id").size(offSize)
+                                .subAggregation(AggregationBuilders.stats("aggreofstatus").field("status"))
                         //.subAggregation(AggregationBuilders.cardinality("statusaggre").field("status"))
                 )
                 //.aggregation(AggregationBuilders.terms("aggreofstatus").field("status"))
-                //.size(0)
-                .sort("updateTime", SortOrder.DESC);
+                //.size(100)
+                .sort("status", SortOrder.ASC);
 
         // TODO 按站点状态聚合查询
         SearchRequest searchRequest = new SearchRequest(INDEX_SITE);
@@ -283,52 +285,69 @@ public class ESService {
             SearchHits searchHits = response.getHits();
             SearchHit[] hits = searchHits.getHits();
             Map<String, SiteMonitorEntity> map = new HashMap<>();
-            List<SiteMonitorEntity> list = new ArrayList<>();
             Arrays.stream(hits).forEach(hit -> {
                 SiteMonitorEntity sme = FastJsonConvertUtil.convertJSONToObject(hit.getSourceAsString(), SiteMonitorEntity.class);
                 if (!map.containsKey(sme.getId())) {
-                    map.put(sme.getId(), sme);
+                    //map.put(sme.getId(), sme);
+                    map.put(sme.getId().toLowerCase(), sme);
                 }
-                list.add(sme);
             });
-
             List<Aggregation> aggregations = response.getAggregations().asList();
             List<? extends Terms.Bucket> buckets = ((ParsedStringTerms) aggregations.get(0)).getBuckets();
-
-            JSONArray arrayF = new JSONArray();
-            JSONArray arrayB = new JSONArray();
+            JSONArray arrayFir = new JSONArray();
+            JSONArray arraySec = new JSONArray();
+            JSONArray arrayThir = new JSONArray();
             buckets.stream().forEach(b -> {
-                Object key = ((Terms.Bucket) b).getKey();
+                String key = (String) ((Terms.Bucket) b).getKey();
+                if (RegexUtil.isMatch(key, ".*[a-zA-Z]+.*")) {
+                    //key = key.toUpperCase().concat("==");
+                    key = key.concat("==");
+                }
+                String keyCp = "-".concat((String) key);
                 List<Aggregation> aggrs = ((Terms.Bucket) b).getAggregations().asList();
                 if (aggrs != null && aggrs.size() > 0) {
                     Aggregation aggregation = aggrs.get(0);
-                    JSONObject json = new JSONObject();
-                    if (map.containsKey(key)) {
-                        json.put("siteId", map.get(key).getId());
-                        json.put("siteName", map.get(key).getSiteName());
-                        json.put("channel", map.get(key).getDataChannel());
-                        json.put("createTime", map.get(key).getCreateTime());
-                        json.put("updateTime", map.get(key).getUpdateTime());
-                        if (((ParsedStats) aggregation).getAvg() == 1L) {
-                            json.put("status", "1");
-                            arrayF.add(json);
-                        } else {
-                            json.put("status", "0");
-                            arrayB.add(json);
+                    SiteMonitorEntity entity = map.get(key) == null ? map.get(keyCp) : map.get(key);
+                    if (entity == null) {
+                        logger.info("========================= entity empty key: {} ===================", key);
+                    }
+                    if (map.containsKey(key) || map.containsKey(keyCp)) {
+                        JSONObject json = new JSONObject();
+                        json.put("id", entity.getId());
+                        json.put("siteName", entity.getSiteName());
+                        json.put("dataChannel", entity.getDataChannel());
+                        json.put("createTime", entity.getCreateTime());
+                        json.put("updateTime", entity.getUpdateTime());
+                        if (aggregation instanceof ParsedStats) {
+                            ParsedStats at = (ParsedStats) aggregation;
+                            if (at.getMin() == -1L) {
+                                json.put("status", "-1");
+                                arrayFir.add(json);
+                            } else {
+                                if (at.getAvg() == 1L) {
+                                    json.put("status", "1");
+                                    arrayThir.add(json);
+                                } else {
+                                    json.put("status", "0");
+                                    arraySec.add(json);
+                                }
+                            }
                         }
+                        json.put("extInfo", entity.getExtInfo());
                     }
                 }
             });
-            arrayF.addAll(arrayB);
-
-            long total = searchHits.getTotalHits().value;
+            arraySec.addAll(arrayThir);
+            arrayFir.addAll(arraySec);
+            //按分页取
+            Integer total = arrayFir.size();
+            Integer startIndx = (pageNo - 1) * limit;
+            Integer endIndx = startIndx + limit > total ? total : startIndx + limit;
+            List<Object> resList = arrayFir.subList(startIndx, endIndx);
             resMap.put("totalCount", total);
             resMap.put("totalPage", Math.round((Math.ceil(total * 1.0 / limit))));
-
-
-            //resMap.put("list", arrayF);
-            resMap.put("list", list);
-             logger.info("============================== es esearch response: {} =======================", response.toString());
+            resMap.put("list", resList);
+            //logger.info("============================== es esearch response: {} =======================", response.toString());
         } catch (IOException e) {
             logger.error("============================= es esearch occure IOException, message: {} =======================", e.getMessage());
             e.printStackTrace();
@@ -336,7 +355,6 @@ public class ESService {
             logger.error("============================= es esearch occure Exception, message: {} =======================", e.getMessage());
             e.printStackTrace();
         }
-
         return resMap;
     }
 

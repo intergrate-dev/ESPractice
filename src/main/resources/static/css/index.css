@@ -1,0 +1,78 @@
+@import 'reset.css';
+.fl {
+  float: left;
+}
+.fr {
+  float: right;
+}
+.hide {
+  display: none;
+}
+.clearfloat {
+  zoom: 1;
+}
+.clearfloat:after {
+  display: block;
+  clear: both;
+  content: "";
+  visibility: hidden;
+  height: 0;
+}
+.page {
+  width: 1920px;
+  height: 1080px;
+  color: #fff;
+  background-image: url("../images/a.jpg");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: center center;
+  overflow: hidden;
+}
+.page .header {
+  height: 80px;
+  padding-left: 60px;
+  line-height: 80px;
+  font-size: 40px;
+}
+.page .main-box {
+  height: 920px;
+}
+.page .main-box .table-box {
+  height: 780px;
+  padding: 60px 0px 0px;
+}
+.page .main-box .table-box .el-table {
+  width: 90%;
+  margin: 0px auto;
+  color: #fff;
+  background: none;
+}
+.page .main-box .table-box .el-table th>.cell {
+  color: #fff;
+  font-size: 30px;
+  line-height: 30px;
+}
+.page .main-box .table-box .rowSty,
+.page .main-box .table-box .cellSty,
+.page .main-box .table-box .hRowSty,
+.page .main-box .table-box .hCellSty {
+  background: none;
+}
+.page .main-box .table-box .cellSty {
+  font-size: 20px;
+}
+.page .main-box .pagination-box {
+  height: 80px;
+}
+.page .main-box .pagination-box nav {
+  text-align: center;
+}
+.page .main-box .pagination-box nav .el-pagination__jump,
+.page .main-box .pagination-box nav .el-pagination__total {
+  color: #fff;
+}
+.page .footer {
+  height: 80px;
+  line-height: 80px;
+  text-align: center;
+}

@@ -1,0 +1,133 @@
+{
+    "status": 200,
+    "errorMessage": "请求成功",
+    "resultObject": {
+        "totalPage": 2,
+        "pageNo": 1,
+        "limit": 10,
+        "totalCount": 18,
+        "list": [
+            {
+                "id": "-1551759657",
+                "siteName": "杭州网-手机客户端",
+                "siteType": null,
+                "dataChannel": [
+                    "APP"
+                ],
+                "status": "0",
+                "extInfo": null,
+                "createTime": "2019-08-08T09:33:13.769+0000",
+                "updateTime": "2019-08-08T09:33:13.770+0000",
+                "task": "SITENEWS"
+            },{
+                "id": "-1551759657",
+                "siteName": "杭州网-手机客户端",
+                "siteType": null,
+                "dataChannel": [
+                    "APP"
+                ],
+                "status": "1",
+                "extInfo": null,
+                "createTime": "2019-08-08T09:33:13.769+0000",
+                "updateTime": "2019-08-08T09:33:13.770+0000",
+                "task": "SITENEWS"
+            },{
+                "id": "-1551759657",
+                "siteName": "杭州网-手机客户端",
+                "siteType": null,
+                "dataChannel": [
+                    "APP"
+                ],
+                "status": "-1",
+                "extInfo": null,
+                "createTime": "2019-08-08T09:33:13.769+0000",
+                "updateTime": "2019-08-08T09:33:13.770+0000",
+                "task": "SITENEWS"
+            },{
+                "id": "-1551759657",
+                "siteName": "杭州网-手机客户端",
+                "siteType": null,
+                "dataChannel": [
+                    "APP"
+                ],
+                "status": "0",
+                "extInfo": null,
+                "createTime": "2019-08-08T09:33:13.769+0000",
+                "updateTime": "2019-08-08T09:33:13.770+0000",
+                "task": "SITENEWS"
+            },{
+                "id": "-1551759657",
+                "siteName": "杭州网-手机客户端",
+                "siteType": null,
+                "dataChannel": [
+                    "APP"
+                ],
+                "status": "0",
+                "extInfo": null,
+                "createTime": "2019-08-08T09:33:13.769+0000",
+                "updateTime": "2019-08-08T09:33:13.770+0000",
+                "task": "SITENEWS"
+            },{
+                "id": "-1551759657",
+                "siteName": "杭州网-手机客户端",
+                "siteType": null,
+                "dataChannel": [
+                    "APP"
+                ],
+                "status": "0",
+                "extInfo": null,
+                "createTime": "2019-08-08T09:33:13.769+0000",
+                "updateTime": "2019-08-08T09:33:13.770+0000",
+                "task": "SITENEWS"
+            },{
+                "id": "-1551759657",
+                "siteName": "杭州网-手机客户端",
+                "siteType": null,
+                "dataChannel": [
+                    "APP"
+                ],
+                "status": "0",
+                "extInfo": null,
+                "createTime": "2019-08-08T09:33:13.769+0000",
+                "updateTime": "2019-08-08T09:33:13.770+0000",
+                "task": "SITENEWS"
+            },{
+                "id": "-1551759657",
+                "siteName": "杭州网-手机客户端",
+                "siteType": null,
+                "dataChannel": [
+                    "APP"
+                ],
+                "status": "0",
+                "extInfo": null,
+                "createTime": "2019-08-08T09:33:13.769+0000",
+                "updateTime": "2019-08-08T09:33:13.770+0000",
+                "task": "SITENEWS"
+            },{
+                "id": "-1551759657",
+                "siteName": "杭州网-手机客户端",
+                "siteType": null,
+                "dataChannel": [
+                    "APP"
+                ],
+                "status": "0",
+                "extInfo": null,
+                "createTime": "2019-08-08T09:33:13.769+0000",
+                "updateTime": "2019-08-08T09:33:13.770+0000",
+                "task": "SITENEWS"
+            },{
+                "id": "-1551759657",
+                "siteName": "杭州网-手机客户端",
+                "siteType": null,
+                "dataChannel": [
+                    "APP"
+                ],
+                "status": "0",
+                "extInfo": null,
+                "createTime": "2019-08-08T09:33:13.769+0000",
+                "updateTime": "2019-08-08T09:33:13.770+0000",
+                "task": "SITENEWS"
+            }
+        ]
+    }
+}

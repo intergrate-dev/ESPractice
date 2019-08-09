@@ -1,0 +1,74 @@
+@import 'reset.css'
+
+$bg-color = #1F1F2A
+$module-color = #24242E
+$module-name-color = #2F53A3
+$font-color = #FFF
+// 背景图方法
+bg-image($url)
+    background-image: url($url)
+    background-repeat: no-repeat
+    background-size: 100% 100%
+    background-position: center center
+
+// 多行文本溢出显示省略号方法 
+text-more-nowrap($line)
+    display -webkit-box
+    overflow hidden
+    -webkit-box-orient vertical
+    -webkit-line-clamp $line
+.fl 
+    float left
+.fr 
+    float right
+.hide
+    display none 
+.clearfloat
+    zoom 1
+.clearfloat:after
+    display block
+    clear both
+    content ""
+    visibility hidden
+    height 0
+
+.page 
+    width 1920px 
+    height 1080px
+    color $font-color
+    bg-image("../images/a.jpg")
+    overflow hidden
+    .header
+        height 80px
+        padding-left 60px
+        line-height 80px 
+        font-size 40px
+    .main-box 
+        height 920px
+        .table-box
+            height 780px
+            padding 60px 0px 0px
+            .el-table
+                width 90%
+                // height 800px
+                margin 0px auto
+                color $font-color
+                background none
+                th>.cell
+                    color $font-color
+                    font-size 30px
+                    line-height 30px
+            .rowSty,.cellSty,.hRowSty,.hCellSty
+                background none
+            .cellSty
+                font-size 20px
+        .pagination-box
+            height 80px
+            nav 
+                text-align center
+                .el-pagination__jump,.el-pagination__total
+                    color $font-color
+    .footer 
+        height 80px
+        line-height 80px
+        text-align center
