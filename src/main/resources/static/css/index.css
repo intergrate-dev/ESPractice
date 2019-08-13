@@ -35,7 +35,31 @@
   font-size: 40px;
 }
 .page .main-box {
+  position: relative;
   height: 920px;
+}
+.page .main-box .count-box {
+  position: absolute;
+  right: 200px;
+  top: 10px;
+  height: 20px;
+  line-height: 20px;
+}
+.page .main-box .count-box .el-tag {
+  margin-right: 10px;
+}
+.page .main-box .change-box {
+  position: absolute;
+  right: 80px;
+  top: 10px;
+  height: 20px;
+  line-height: 20px;
+}
+.page .main-box .change-box .el-switch__label {
+  color: #c6c9d0;
+}
+.page .main-box .change-box .el-switch__label.is-active {
+  color: #409eff;
 }
 .page .main-box .table-box {
   height: 780px;

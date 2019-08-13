@@ -31,6 +31,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.ParsedStats;
@@ -255,7 +256,7 @@ public class ESService {
         }
     }
 
-    public Map<String, Object> querySiteInfo(Integer pageNo, Integer limit) {
+    public Map<String, Object> querySiteInfo(Integer pageNo, Integer limit) throws Exception {
         Map<String, Object> resMap = new HashMap<>();
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
@@ -280,81 +281,73 @@ public class ESService {
         SearchRequest searchRequest = new SearchRequest(INDEX_SITE);
         searchRequest.source(sourceBuilder);
         SearchResponse response = null;
-        try {
-            response = client.search(searchRequest, RequestOptions.DEFAULT);
-            SearchHits searchHits = response.getHits();
-            SearchHit[] hits = searchHits.getHits();
-            Map<String, SiteMonitorEntity> map = new HashMap<>();
-            Arrays.stream(hits).forEach(hit -> {
-                SiteMonitorEntity sme = FastJsonConvertUtil.convertJSONToObject(hit.getSourceAsString(), SiteMonitorEntity.class);
-                if (!map.containsKey(sme.getId())) {
-                    //map.put(sme.getId(), sme);
-                    map.put(sme.getId().toLowerCase(), sme);
+        response = client.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits searchHits = response.getHits();
+        SearchHit[] hits = searchHits.getHits();
+        Map<String, SiteMonitorEntity> map = new HashMap<>();
+        Arrays.stream(hits).forEach(hit -> {
+            SiteMonitorEntity sme = FastJsonConvertUtil.convertJSONToObject(hit.getSourceAsString(), SiteMonitorEntity.class);
+            if (!map.containsKey(sme.getId())) {
+                //map.put(sme.getId(), sme);
+                map.put(sme.getId().toLowerCase(), sme);
+            }
+        });
+        List<Aggregation> aggregations = response.getAggregations().asList();
+        List<? extends Terms.Bucket> buckets = ((ParsedStringTerms) aggregations.get(0)).getBuckets();
+        JSONArray arrayFir = new JSONArray();
+        JSONArray arraySec = new JSONArray();
+        JSONArray arrayThir = new JSONArray();
+        buckets.stream().forEach(b -> {
+            String key = (String) ((Terms.Bucket) b).getKey();
+            if (RegexUtil.isMatch(key, ".*[a-zA-Z]+.*")) {
+                //key = key.toUpperCase().concat("==");
+                key = key.concat("==");
+            }
+            String keyCp = "-".concat((String) key);
+            List<Aggregation> aggrs = ((Terms.Bucket) b).getAggregations().asList();
+            if (aggrs != null && aggrs.size() > 0) {
+                Aggregation aggregation = aggrs.get(0);
+                SiteMonitorEntity entity = map.get(key) == null ? map.get(keyCp) : map.get(key);
+                if (entity == null) {
+                    logger.info("========================= entity empty key: {} ===================", key);
                 }
-            });
-            List<Aggregation> aggregations = response.getAggregations().asList();
-            List<? extends Terms.Bucket> buckets = ((ParsedStringTerms) aggregations.get(0)).getBuckets();
-            JSONArray arrayFir = new JSONArray();
-            JSONArray arraySec = new JSONArray();
-            JSONArray arrayThir = new JSONArray();
-            buckets.stream().forEach(b -> {
-                String key = (String) ((Terms.Bucket) b).getKey();
-                if (RegexUtil.isMatch(key, ".*[a-zA-Z]+.*")) {
-                    //key = key.toUpperCase().concat("==");
-                    key = key.concat("==");
-                }
-                String keyCp = "-".concat((String) key);
-                List<Aggregation> aggrs = ((Terms.Bucket) b).getAggregations().asList();
-                if (aggrs != null && aggrs.size() > 0) {
-                    Aggregation aggregation = aggrs.get(0);
-                    SiteMonitorEntity entity = map.get(key) == null ? map.get(keyCp) : map.get(key);
-                    if (entity == null) {
-                        logger.info("========================= entity empty key: {} ===================", key);
-                    }
-                    if (map.containsKey(key) || map.containsKey(keyCp)) {
-                        JSONObject json = new JSONObject();
-                        json.put("id", entity.getId());
-                        json.put("siteName", entity.getSiteName());
-                        json.put("dataChannel", entity.getDataChannel());
-                        json.put("createTime", entity.getCreateTime());
-                        json.put("updateTime", entity.getUpdateTime());
-                        if (aggregation instanceof ParsedStats) {
-                            ParsedStats at = (ParsedStats) aggregation;
-                            if (at.getMin() == -1L) {
-                                json.put("status", "-1");
-                                arrayFir.add(json);
+                if (map.containsKey(key) || map.containsKey(keyCp)) {
+                    JSONObject json = new JSONObject();
+                    json.put("id", entity.getId());
+                    json.put("siteName", entity.getSiteName());
+                    json.put("dataChannel", entity.getDataChannel());
+                    json.put("createTime", entity.getCreateTime());
+                    json.put("updateTime", entity.getUpdateTime());
+                    if (aggregation instanceof ParsedStats) {
+                        ParsedStats at = (ParsedStats) aggregation;
+                        if (at.getMin() == -1L) {
+                            json.put("status", "-1");
+                            arrayFir.add(json);
+                        } else {
+                            if (at.getAvg() == 1L) {
+                                json.put("status", "1");
+                                arrayThir.add(json);
                             } else {
-                                if (at.getAvg() == 1L) {
-                                    json.put("status", "1");
-                                    arrayThir.add(json);
-                                } else {
-                                    json.put("status", "0");
-                                    arraySec.add(json);
-                                }
+                                json.put("status", "0");
+                                arraySec.add(json);
                             }
                         }
-                        json.put("extInfo", entity.getExtInfo());
                     }
+                    json.put("extInfo", entity.getExtInfo());
                 }
-            });
-            arraySec.addAll(arrayThir);
-            arrayFir.addAll(arraySec);
-            //按分页取
-            Integer total = arrayFir.size();
-            Integer startIndx = (pageNo - 1) * limit;
-            Integer endIndx = startIndx + limit > total ? total : startIndx + limit;
-            List<Object> resList = arrayFir.subList(startIndx, endIndx);
-            resMap.put("totalCount", total);
-            resMap.put("totalPage", Math.round((Math.ceil(total * 1.0 / limit))));
-            resMap.put("list", resList);
-            //logger.info("============================== es esearch response: {} =======================", response.toString());
-        } catch (IOException e) {
-            logger.error("============================= es esearch occure IOException, message: {} =======================", e.getMessage());
-            e.printStackTrace();
-        } catch (Exception e) {
-            logger.error("============================= es esearch occure Exception, message: {} =======================", e.getMessage());
-            e.printStackTrace();
-        }
+            }
+        });
+        arraySec.addAll(arrayThir);
+        arrayFir.addAll(arraySec);
+        //按分页取
+        Integer total = arrayFir.size();
+        Integer startIndx = (pageNo - 1) * limit;
+        Integer endIndx = startIndx + limit > total ? total : startIndx + limit;
+        List<Object> resList = arrayFir.subList(startIndx, endIndx);
+        resMap.put("totalCount", total);
+        resMap.put("totalPage", Math.round((Math.ceil(total * 1.0 / limit))));
+        resMap.put("list", resList);
+        //logger.info("============================== es esearch response: {} =======================", response.toString());
         return resMap;
     }
 
@@ -401,5 +394,30 @@ public class ESService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public JSONArray queryAggsByStatus() throws Exception {
+        JSONArray resArr = new JSONArray();
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        sourceBuilder.query(boolBuilder).aggregation(AggregationBuilders.terms("agg_status").field("status"));
+
+        SearchRequest searchRequest = new SearchRequest(INDEX_SITE);
+        searchRequest.source(sourceBuilder);
+        SearchResponse response = null;
+        response = client.search(searchRequest, RequestOptions.DEFAULT);
+
+        List<Aggregation> aggregations = response.getAggregations().asList();
+        if (aggregations.size() == 0) {
+            return null;
+        }
+        List<? extends Terms.Bucket> buckets = ((ParsedLongTerms) aggregations.get(0)).getBuckets();
+        buckets.stream().forEach(b -> {
+            JSONObject json = new JSONObject();
+            json.put("status", ((Terms.Bucket) b).getKey());
+            json.put("docCount", ((Terms.Bucket) b).getDocCount());
+            resArr.add(json);
+        });
+        return resArr;
     }
 }

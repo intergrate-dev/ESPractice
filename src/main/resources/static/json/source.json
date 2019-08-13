@@ -2,10 +2,15 @@
     "status": 200,
     "errorMessage": "请求成功",
     "resultObject": {
-        "totalPage": 2,
+        "totalPage": 105,
         "pageNo": 1,
         "limit": 10,
-        "totalCount": 18,
+        "totalCount": 1048,
+        "statusStats":[
+            {"docCount": 1473, "status" : 1},
+            {"docCount": 949, "status" : 0},
+            {"docCount": 563, "status" : -1}
+        ],
         "list": [
             {
                 "id": "-1551759657",

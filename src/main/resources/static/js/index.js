@@ -1,13 +1,14 @@
-// 正式环境
+正式环境
 const amucUrl = "http://118.31.239.157:8080/",
     requestUrl = {
         querySiteInfo: amucUrl + "doc/querySiteInfo"
     },
-    pageFreshTime = 60 * 60 * 1000;
-// 测试
-// const amucUrl = "http://118.31.239.157:8080/",
+    pageFreshTime = 60 * 1000;
+// // 测试
+// const amucUrl = "http://172.19.32.153:8080/",
 //     requestUrl = {
-//         querySiteInfo: "../json/source.json"
+//         querySiteInfo: amucUrl + "doc/querySiteInfo"
+//         // querySiteInfo: "../json/source.json"
 //     },
 //     pageFreshTime = 10 * 1000;
 
@@ -15,9 +16,13 @@ new Vue({
     el: "#source",
     data: {
         total: 0,
-        timer: null,
         loading: false,
+        countData:[],
         tableData: [],
+        changeMode: true,
+        currentPage:1,
+        totalPage:1,
+        timer: null,
     },
     mounted: function () {
         let obj = this;
@@ -26,11 +31,39 @@ new Vue({
         window.onresize = function () {
             obj.autoScreen();
         }
-        obj.timer = setInterval(function(){
-            obj.getTableDate(1);
-        },pageFreshTime);
+        obj.autoChangePage();
+        // obj.timer = setInterval(function(){
+        //     obj.getTableDate(1);
+        // },pageFreshTime);
     },
     methods: {
+        // 自动切换页码
+        autoChangePage(){
+            let obj = this;
+
+            // console.log(obj.timer)
+            // clearInterval(obj.timer)
+            obj.timer = setInterval(function() {
+                let _next = obj.currentPage + 1,
+                    maxLen = obj.totalPage;
+                if (_next > maxLen) {
+                    _next = 1;
+                }
+                // console.log(_next)
+                obj.currentPage = _next;
+                obj.handleCurrentChange(_next);
+            }, pageFreshTime);
+        },
+        // 改变页码切换状态
+        changePageStatus(){
+            let obj = this;
+            if(!obj.changeMode){
+                clearInterval(obj.timer);
+            }else{
+                obj.autoChangePage();
+            }
+
+        },
         // 按钮显示状态对应中文
         tagName(status) {
             let tagObj = {
@@ -73,11 +106,14 @@ new Vue({
                 url: requestUrl.querySiteInfo,
                 data: { "pageNo": pageNo, "limit": 10 },
                 type: "POST",
+                // type: "GET",
                 dataType: "JSON",
                 success: function (data) {
                     if (data.status == 200) {
                         obj.loading = false;
                         obj.total = data.resultObject.totalCount;
+                        obj.totalPage = data.resultObject.totalPage;
+                        obj.countData = data.resultObject.statusStats;
                         obj.tableData = data.resultObject.list;
                     } else {
                         obj.loading = false;
@@ -98,6 +134,7 @@ new Vue({
         handleCurrentChange(val) {
             let obj = this;
             obj.loading = true;
+            obj.currentPage = val;
             obj.getTableDate(val)
             // console.log(`当前页: ${val}`);
         },

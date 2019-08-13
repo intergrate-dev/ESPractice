@@ -44,7 +44,26 @@ text-more-nowrap($line)
         line-height 80px 
         font-size 40px
     .main-box 
+        position relative
         height 920px
+        .count-box
+            position absolute
+            right 200px
+            top 10px
+            height 20px 
+            line-height 20px
+            .el-tag
+                margin-right 10px
+        .change-box
+            position absolute
+            right 80px
+            top 10px
+            height 20px 
+            line-height 20px
+            .el-switch__label
+                color #c6c9d0
+            .el-switch__label.is-active 
+                color #409EFF
         .table-box
             height 780px
             padding 60px 0px 0px

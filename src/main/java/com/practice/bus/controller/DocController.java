@@ -7,6 +7,8 @@ import com.practice.common.ResponseObject;
 import com.practice.common.SystemConstant;
 import com.practice.es.service.ESService;
 import com.practice.util.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +28,8 @@ import java.util.*;
 @Controller
 @RequestMapping("/doc")
 public class DocController {
+    private static Logger logger = LoggerFactory.getLogger(DocController.class);
+
     @Autowired
     DocService docService;
     @Autowired
@@ -142,7 +146,15 @@ public class DocController {
     @ResponseBody
     public ResponseObject querySiteInfo(@RequestParam(name = "pageNo", required = true) Integer pageNo,
                                 @RequestParam(name = "limit", required = true) Integer limit) {
-        Map<String, Object> queryMap =  esService.querySiteInfo(pageNo, limit);
+        Map<String, Object> queryMap =  null;
+        try {
+            queryMap = esService.querySiteInfo(pageNo, limit);
+            queryMap.put("statusStats", esService.queryAggsByStatus());
+        } catch (Exception e) {
+            logger.error("----------------------- 获取站点信息失败！， error: {} --------------------------", e.getMessage());
+            e.printStackTrace();
+            return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, "获取站点更新信息失败！");
+        }
         queryMap.put("pageNo", pageNo);
         queryMap.put("limit", limit);
         return ResponseObject.newSuccessResponseObject(queryMap, SystemConstant.REQ_SUCCESS);

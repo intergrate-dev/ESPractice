@@ -14,6 +14,17 @@
         <p>大屏站点实时监控系统</p>
     </div>
     <div class="main-box" id="source">
+        <div class="count-box">
+            <!-- <span class="count-item" v-for="item in countData"
+                v-html="tagName(item.status) + ':&nbsp;' + item.docCount"></span> -->
+                <el-tag v-for="item in countData" :type="typeName(item.status)" :icon="iconName(item.status)"
+                            disable-transitions v-html="tagName(item.status) + ':&nbsp;' + item.docCount"></el-tag>
+        </div>
+        <div class="change-box">
+            <el-switch style="display: block" v-model="changeMode" @change="changePageStatus" active-color="#13ce66" inactive-color="#ff4949"
+                active-text="自动切换">
+            </el-switch>
+        </div>
         <div class="table-box">
             <el-table :data="tableData" v-loading="loading" border row-class-name="rowSty" cell-class-name="cellSty"
                 header-row-class-name="hRowSty" header-cell-class-name="hCellSty">
@@ -38,14 +49,14 @@
         </div>
         <div class="pagination-box">
             <nav>
-                <el-pagination @current-change="handleCurrentChange" background
-                    layout="total, prev, pager, next,jumper" :total="total" >
+                <el-pagination @current-change="handleCurrentChange" background layout="total, prev, pager, next,jumper"
+                    :total="total" :current-page="currentPage">
                 </el-pagination>
             </nav>
         </div>
     </div>
     <div class="footer">
-        <p>版权归大数据事业部创新业务部&copy;所有</p>
+        <p>版权归大数据事业部-产品部&copy;所有</p>
     </div>
     <script src="js/jquery.min.js"></script>
     <script src="js/vue.min.js"></script>
