@@ -13,16 +13,16 @@ spring:
     username: admin
     password: admin
     virtual-host: rabbit_vhost
+  redis:
+      host: 127.0.0.1
+      port: 6379
+      password: 123456
+      timeout: 30
+      poolMaxTotal: 1000
+      poolMaxIdle: 500
+      poolMaxWait: 500
 
 # logbak
 logging:
   config: classpath:logback-spring.xml
-
-# app config
-app:
-  config:
-    identify: local
-    queue: local_sitemonitor_queue
-
-
 

@@ -1,0 +1,49 @@
+{
+  "settings": {
+    "number_of_replicas": 0
+  },
+  "mappings": {
+    "dynamic": true,
+    "properties": {
+      "id": {
+        "type": "text",
+        "fielddata": true
+      },
+      "mediaId": {
+        "type": "integer"
+      },
+      "code": {
+        "type": "keyword"
+      },
+      "weekOfYear": {
+        "type": "integer"
+      },
+      "sourceId": {
+        "type": "integer"
+      },
+      "name": {
+        "type": "text"
+      },
+      "dataType": {
+        "type": "text"
+      },
+      "title": {
+        "type": "text"
+      },
+      "visitCount": {
+        "type": "integer"
+      },
+      "likeCount": {
+        "type": "integer"
+      },
+      "pubdate": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss"
+      },
+      "location": {
+        "type": "text"
+      }
+    }
+  }
+}
+

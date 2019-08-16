@@ -99,7 +99,6 @@ public class DocController {
         String path = DocController.class.getClassLoader().getResource("esconf/mapping-siteMonitor.json").getPath();
         String s = JsonUtil.readJsonFile(path);
         JSONObject json = JSON.parseObject(s);
-
         esService.mappingSiteInfo(json);
         return "mappingSiteInfo success";
     }

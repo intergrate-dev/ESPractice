@@ -1,29 +1,18 @@
 package com.practice.mq.service;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
-
 import com.alibaba.fastjson.JSONObject;
+import com.practice.bus.bean.EnumOperation;
 import com.practice.bus.bean.SiteMonitorEntity;
+import com.practice.config.RabbitMQConfig;
+import com.practice.es.service.ESService;
 import com.practice.util.DateParseUtil;
-import com.practice.util.FastJsonConvertUtil;
-import com.rabbitmq.client.impl.AMQImpl;
-import org.apache.http.client.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.practice.bus.bean.DocInfo;
-import com.practice.bus.bean.EnumOperation;
-import com.practice.config.RabbitMQConfig;
-import com.practice.es.service.ESDocumentTemplate;
-import com.practice.es.service.ESService;
-import org.springframework.messaging.handler.annotation.Headers;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
+
+import java.util.Date;
 
 //从指定队列中接收消息
 @Component
@@ -39,7 +28,7 @@ public class RabbitMQReceiver {
         RabbitMessage rabbitMessage = JSONObject.toJavaObject(content, RabbitMessage.class);
         EnumOperation operation = rabbitMessage.getOperation();
         SiteMonitorEntity siteMonitor = rabbitMessage.getSiteMonitor();
-        logger.info("==================== recieve handleMessage, operation: {}, info:{} ---- {} ---- {} ---- updateTime: {}, at now:  {}, extInfo: {}======================",
+        logger.info("------------------------- recieve handleMessage, operation: {}, info:{} ---- {} ---- {} ---- updateTime: {}, at now:  {}, extInfo: {} ----------------------------------",
                 operation, siteMonitor.getId(), siteMonitor.getTask(), siteMonitor.getStatus(), siteMonitor.getUpdateTime(),
                 DateParseUtil.dateTimeToString(new Date()), siteMonitor.getExtInfo());
 
@@ -50,7 +39,7 @@ public class RabbitMQReceiver {
             case MODIFY:
                 indexService.modifySiteInfo(siteMonitor);
                 break;
-            case DELETE:
+            default:
                 break;
         }
     }

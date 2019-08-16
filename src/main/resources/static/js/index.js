@@ -1,10 +1,9 @@
-正式环境
 const amucUrl = "http://118.31.239.157:8080/",
     requestUrl = {
         querySiteInfo: amucUrl + "doc/querySiteInfo"
     },
     pageFreshTime = 60 * 1000;
-// // 测试
+
 // const amucUrl = "http://172.19.32.153:8080/",
 //     requestUrl = {
 //         querySiteInfo: amucUrl + "doc/querySiteInfo"

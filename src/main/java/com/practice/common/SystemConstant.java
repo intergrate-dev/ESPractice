@@ -27,4 +27,10 @@ public class SystemConstant {
 	public static final String PARAM_FORMAT_INCOR = "非法请求！api参数格式不正确";
 	public static final Integer REQ_ILLEGAL_CODE = -1;
 
+	public static final String PREFIX_MEDIA_SOURCE = "espractice:media-source:";
+	public static final String SOURCE_WECHAT = "wechat";
+	public static final String SOURCE_WEIBO = "weibo";
+	public static final String SOURCE_APP = "app";
+
 }
+

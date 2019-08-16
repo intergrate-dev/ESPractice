@@ -1,0 +1,31 @@
+## BigScreen
+bigconf:
+  #======大数据内容平台接口地址=========
+  rooturl: http://mbdapi.fzdzyun.com
+  #======大数据内容平台授权appid=======
+  APPID: foc11dc9f62c319e15
+  #======大数据内容平台appsecret======
+  APPSECRET: cb39e19a2698a21d4139c90d51876cc7
+  #======行为平台接口地址============
+  actUrl: http://112.124.102.33:8081
+  #======行为平台接口授权appid=======
+  actKey: stateZVdrETLIgsxhl
+  #======行为平台接口授权appsecret=======
+  actSecret: AMylQ4GXpPUXZu1YKRKSXM1uS8o3
+  #======配置需要更新的大屏mediaId,多个用英文逗号隔开
+  mediaId: 90
+
+#=============httpclient===============
+#并发数
+http:
+  maxTotal: 100
+  defaultMaxPerRoute: 20
+  #创建连接的最长时间
+  connectTimeout: 5000
+  #从连接池中获取到连接的最长时间
+  connectionRequestTimeout: 1000
+  #数据传输的最长时间
+  socketTimeout: 5000
+  #提交请求前测试连接是否可用0
+  staleConnectionCheckEnabled: true
+

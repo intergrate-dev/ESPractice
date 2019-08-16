@@ -13,14 +13,16 @@ spring:
     username: user
     password: FN9725
     virtual-host: rabbit_vhost
+  redis:
+    host: 118.31.239.157
+    port: 6379
+    password: founder@9725*FN
+    timeout: 30
+    poolMaxTotal: 1000
+    poolMaxIdle: 500
+    poolMaxWait: 500
 
 # logbak
 logging:
   config: classpath:logback-spring.xml
-
-# app config
-app:
-  config:
-    identify: new
-
 

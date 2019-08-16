@@ -1,0 +1,38 @@
+[
+  {
+    "id": "001",
+    "jobName": "t_mon",
+    "description": "周一3h更新1次",
+    "jobGroup": "group_week",
+    "beanClass": "",
+    "cronExpression": "",
+    "jobStatus": "0"
+  },
+  {
+    "id": "002",
+    "jobName": "t_tue",
+    "description": "周二6h更新1次",
+    "jobGroup": "group_week",
+    "beanClass": "",
+    "cronExpression": "",
+    "jobStatus": "0"
+  },
+  {
+    "id": "001",
+    "jobName": "t_wed",
+    "description": "周三12h更新1次",
+    "jobGroup": "group_week",
+    "beanClass": "",
+    "cronExpression": "",
+    "jobStatus": "0"
+  },
+  {
+    "id": "001",
+    "jobName": "t_remainds",
+    "description": "周四到周日24h更新1次",
+    "jobGroup": "group_week",
+    "beanClass": "",
+    "cronExpression": "",
+    "jobStatus": "0"
+  }
+]

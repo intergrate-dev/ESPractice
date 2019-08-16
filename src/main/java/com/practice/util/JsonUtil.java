@@ -18,6 +18,7 @@ public class JsonUtil {
             fileReader.close();
             reader.close();
             jsonStr = sb.toString();
+
             return jsonStr;
         } catch (IOException e) {
             e.printStackTrace();

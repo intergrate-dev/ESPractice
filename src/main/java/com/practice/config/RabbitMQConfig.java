@@ -21,7 +21,6 @@ import com.practice.mq.service.RabbitMQReceiver;
  */
 @Configuration
 public class RabbitMQConfig {
-	//"local_sitemonitor_queue";
 	public static final String QUEUE_NAME = "index_queue_1";
 
 	@Bean

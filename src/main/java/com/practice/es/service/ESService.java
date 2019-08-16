@@ -7,9 +7,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.frameworkset.util.RegexUtil;
 import com.practice.bus.bean.DocInfo;
+import com.practice.bus.bean.MediaArticle;
 import com.practice.bus.bean.SiteMonitorEntity;
 import com.practice.es.core.RestClientTemplate;
 import com.practice.util.FastJsonConvertUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -216,7 +218,7 @@ public class ESService {
         searchRequest.source(sourceBuilder);
         try {
             SearchResponse response = client.search(searchRequest, null);
-            logger.info("=============================== es esearch response: {} =======================", response.toString());
+            logger.info("---------------------------- es esearch response: {} ---------------------------", response.toString());
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -224,14 +226,22 @@ public class ESService {
         return null;
     }
 
-    public void createSiteInfo(SiteMonitorEntity siteMonitor) {
-        IndexRequest indexRequest = new IndexRequest(INDEX_SITE);
-        indexRequest.id(SiteMonitorEntity.genRequestId(siteMonitor));
-        String source = JSON.toJSON(siteMonitor).toString();
-        indexRequest.source(source, XContentType.JSON);
+    public void createSiteInfo(SiteMonitorEntity entity) {
+        String rId = SiteMonitorEntity.genRequestId(entity);
+        String index = INDEX_SITE;
+        this.createEsEntity(entity, rId, index);
+    }
+
+    private void createEsEntity(Object entity, String rId, String index) {
+        if (entity == null || StringUtils.isEmpty(rId) || StringUtils.isEmpty(index)) {
+            logger.error("========================== createEsEntity occure error, message: entiry , rId or index exist empty value =====================");
+            return;
+        }
+        IndexRequest indexRequest = new IndexRequest(index).id(rId);
+        indexRequest.source(JSON.toJSON(entity).toString(), XContentType.JSON);
         try {
             IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
-            logger.info("================= createSiteInfo, indexResponse status: {}, source: {}", indexResponse.status(), source);
+            logger.info("------------------ createSiteInfo, indexResponse status: {}, source: {} ----------------", indexResponse.status(), indexRequest.source());
         } catch (IOException e) {
             logger.error("================= createSiteInfo error, id: {}, error: {} =============", indexRequest.id(), e.getMessage());
             e.printStackTrace();
@@ -249,7 +259,7 @@ public class ESService {
             UpdateByQueryRequest request = new UpdateByQueryRequest(INDEX_SITE).setQuery(boolBuilder).setScript(script);
             request.setConflicts("proceed");
             BulkByScrollResponse response = client.updateByQuery(request, RequestOptions.DEFAULT);
-            logger.info("================= modifySiteInfo, update item: {}, source: {}", response.getStatus().getTotal(), source);
+            logger.info("------------------------------ modifySiteInfo, update item: {}, source: {} ------------------------", response.getStatus().getTotal(), source);
         } catch (IOException e) {
             logger.error("================= modifySiteInfo error, id: {}, error: {} =============", siteMonitor.getId(), e.getMessage());
             e.printStackTrace();
@@ -309,7 +319,7 @@ public class ESService {
                 Aggregation aggregation = aggrs.get(0);
                 SiteMonitorEntity entity = map.get(key) == null ? map.get(keyCp) : map.get(key);
                 if (entity == null) {
-                    logger.info("========================= entity empty key: {} ===================", key);
+                    logger.info("-------------------------- entity empty key: {} -----------------------------", key);
                 }
                 if (map.containsKey(key) || map.containsKey(keyCp)) {
                     JSONObject json = new JSONObject();
@@ -347,29 +357,12 @@ public class ESService {
         resMap.put("totalCount", total);
         resMap.put("totalPage", Math.round((Math.ceil(total * 1.0 / limit))));
         resMap.put("list", resList);
-        //logger.info("============================== es esearch response: {} =======================", response.toString());
+        //logger.info("------------------------- es esearch response: {} ------------------------------", response.toString());
         return resMap;
     }
 
     public void mappingSiteInfo(JSONObject json) {
-        /*HttpEntity entity = new NStringEntity(json.toString(), ContentType.APPLICATION_JSON);
-        // 使用RestClient进行操作 而非rhlClient
-        RetentionLeaseActions.Response response = client.performRequest("put", "/demo", Collections.<String, String> emptyMap(),
-                entity);
-        System.out.println(response);*/
-
-        /*Map<String, Object> properties = new HashMap<>();
-        properties.put("name", null);
-        properties.put("age", null);
-        properties.put("address", null);*/
-
         Map<String, Object> parseMap = FastJsonConvertUtil.json2Map(json.toString());
-        /*Map<String, Object> mapping = new HashMap<>();
-        mapping.put("properties", parseMap.get("mappings"));
-
-        Map<String, Object> settings = new HashMap<>();
-        mapping.put("properties", json.getString("settings"));*/
-
         CreateIndexRequest request = new CreateIndexRequest(INDEX_SITE).mapping((Map<String, ?>) parseMap.get("mappings"))
                 .settings((Map<String, ?>) parseMap.get("settings"));
         template.opsForIndices().create(request);
@@ -419,5 +412,95 @@ public class ESService {
             resArr.add(json);
         });
         return resArr;
+    }
+
+    public void createMediaArticle(MediaArticle entity) {
+        String rId = MediaArticle.genRequestId(entity);
+        String index = INDEX_SITE;
+        this.createEsEntity(entity, rId, index);
+    }
+
+    public Map<String, Object> querayMediaStats(String mediaId, Integer integer) throws IOException {
+        Map<String, Object> resMap = new HashMap<>();
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        Integer from = 0;
+        Integer offSize = 5000;
+        sourceBuilder.from(from);
+        sourceBuilder.size(offSize);
+        String[] includes = new String[]{"id", "siteName", "task", "status", "dataChannel", "createTime", "updateTime"};
+        sourceBuilder.fetchSource(includes, new String[]{});
+
+        BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        sourceBuilder.query(boolBuilder)
+                .aggregation(AggregationBuilders.terms("aggreofid").field("id").size(offSize)
+                                .subAggregation(AggregationBuilders.stats("aggreofstatus").field("status"))
+                )
+                .sort("status", SortOrder.ASC);
+        // TODO 按站点状态聚合查询
+        SearchRequest searchRequest = new SearchRequest(INDEX_SITE);
+        searchRequest.source(sourceBuilder);
+        SearchResponse response = null;
+        response = client.search(searchRequest, RequestOptions.DEFAULT);
+        SearchHits searchHits = response.getHits();
+        SearchHit[] hits = searchHits.getHits();
+        Map<String, SiteMonitorEntity> map = new HashMap<>();
+        Arrays.stream(hits).forEach(hit -> {
+            SiteMonitorEntity sme = FastJsonConvertUtil.convertJSONToObject(hit.getSourceAsString(), SiteMonitorEntity.class);
+            if (!map.containsKey(sme.getId())) {
+                //map.put(sme.getId(), sme);
+                map.put(sme.getId().toLowerCase(), sme);
+            }
+        });
+        List<Aggregation> aggregations = response.getAggregations().asList();
+        List<? extends Terms.Bucket> buckets = ((ParsedStringTerms) aggregations.get(0)).getBuckets();
+        JSONArray arrayFir = new JSONArray();
+        JSONArray arraySec = new JSONArray();
+        JSONArray arrayThir = new JSONArray();
+        buckets.stream().forEach(b -> {
+            String key = (String) ((Terms.Bucket) b).getKey();
+            if (RegexUtil.isMatch(key, ".*[a-zA-Z]+.*")) {
+                //key = key.toUpperCase().concat("==");
+                key = key.concat("==");
+            }
+            String keyCp = "-".concat((String) key);
+            List<Aggregation> aggrs = ((Terms.Bucket) b).getAggregations().asList();
+            if (aggrs != null && aggrs.size() > 0) {
+                Aggregation aggregation = aggrs.get(0);
+                SiteMonitorEntity entity = map.get(key) == null ? map.get(keyCp) : map.get(key);
+                if (entity == null) {
+                    logger.info("-------------------------- entity empty key: {} -----------------------------", key);
+                }
+                if (map.containsKey(key) || map.containsKey(keyCp)) {
+                    JSONObject json = new JSONObject();
+                    json.put("id", entity.getId());
+                    json.put("siteName", entity.getSiteName());
+                    json.put("dataChannel", entity.getDataChannel());
+                    json.put("createTime", entity.getCreateTime());
+                    json.put("updateTime", entity.getUpdateTime());
+                    if (aggregation instanceof ParsedStats) {
+                        ParsedStats at = (ParsedStats) aggregation;
+                        if (at.getMin() == -1L) {
+                            json.put("status", "-1");
+                            arrayFir.add(json);
+                        } else {
+                            if (at.getAvg() == 1L) {
+                                json.put("status", "1");
+                                arrayThir.add(json);
+                            } else {
+                                json.put("status", "0");
+                                arraySec.add(json);
+                            }
+                        }
+                    }
+                    json.put("extInfo", entity.getExtInfo());
+                }
+            }
+        });
+        arraySec.addAll(arrayThir);
+        arrayFir.addAll(arraySec);
+        //按分页取
+        resMap.put("list", arrayFir);
+        //logger.info("------------------------- es esearch response: {} ------------------------------", response.toString());
+        return resMap;
     }
 }

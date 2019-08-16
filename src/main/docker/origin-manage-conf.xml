@@ -1,0 +1,338 @@
+<tree>
+    <tree text="方正电子" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=8" orgID="8" click="showOrg(8)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="羊城晚报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=14" orgID="14" click="showOrg(14)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="深圳报业集团" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=15" orgID="15" click="showOrg(15)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="内江日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=16" orgID="16" click="showOrg(16)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="宁波日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=17" orgID="17" click="showOrg(17)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="廊坊日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=18" orgID="18" click="showOrg(18)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="兵团日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=19" orgID="19" click="showOrg(19)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="西安日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=20" orgID="20" click="showOrg(20)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="辽宁日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=21" orgID="21" click="showOrg(21)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="新疆大晨报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=22" orgID="22" click="showOrg(22)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="广州日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=23" orgID="23" click="showOrg(23)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="梧州日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=24" orgID="24" click="showOrg(24)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="重庆当代" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=25" orgID="25" click="showOrg(25)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="海南日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=27" orgID="27" click="showOrg(27)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="柳州日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=28" orgID="28" click="showOrg(28)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="济宁日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=29" orgID="29" click="showOrg(29)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="台州日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=30" orgID="30" click="showOrg(30)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="东莞日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=31" orgID="31" click="showOrg(31)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="印刷学院" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=32" orgID="32" click="showOrg(32)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="湘潭日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=33" orgID="33" click="showOrg(33)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="沈阳日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=34" orgID="34" click="showOrg(34)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="杭州日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=35" orgID="35" click="showOrg(35)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="郑州大学" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=36" orgID="36" click="showOrg(36)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="三峡都市报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=37" orgID="37" click="showOrg(37)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="中国石化报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=38" orgID="38" click="showOrg(38)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="郑州日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=39" orgID="39" click="showOrg(39)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="綦江日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=40" orgID="40" click="showOrg(40)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="邯郸日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=41" orgID="41" click="showOrg(41)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="闽南日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=42" orgID="42" click="showOrg(42)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="重庆日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=43" orgID="43" click="showOrg(43)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="甘肃日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=44" orgID="44" click="showOrg(44)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="淮北日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=45" orgID="45" click="showOrg(45)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="惠州日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=46" orgID="46" click="showOrg(46)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="工人日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=48" orgID="48" click="showOrg(48)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="肥乡日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=49" orgID="49" click="showOrg(49)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="萍乡日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=50" orgID="50" click="showOrg(50)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="长宁新闻中心" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=51" orgID="51" click="showOrg(51)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="昌吉日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=52" orgID="52" click="showOrg(52)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="泉州晚报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=53" orgID="53" click="showOrg(53)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="人民大学" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=54" orgID="54" click="showOrg(54)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="北海日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=55" orgID="55" click="showOrg(55)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="长春日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=56" orgID="56" click="showOrg(56)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="德宏日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=57" orgID="57" click="showOrg(57)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="闽西日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=59" orgID="59" click="showOrg(59)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="长江日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=60" orgID="60" click="showOrg(60)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="欧亚新闻学院" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=61" orgID="61" click="showOrg(61)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="青海日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=62" orgID="62" click="showOrg(62)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="沧州日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=63" orgID="63" click="showOrg(63)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="焦作日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=64" orgID="64" click="showOrg(64)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="新华日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=65" orgID="65" click="showOrg(65)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="西安日报新" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=66" orgID="66" click="showOrg(66)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="永川日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=67" orgID="67" click="showOrg(67)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="铜仁日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=68" orgID="68" click="showOrg(68)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="泰安日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=69" orgID="69" click="showOrg(69)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="铜陵日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=70" orgID="70" click="showOrg(70)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="贵港日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=71" orgID="71" click="showOrg(71)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="承德日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=72" orgID="72" click="showOrg(72)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="江西日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=73" orgID="73" click="showOrg(73)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="宁德日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=74" orgID="74" click="showOrg(74)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="洛阳日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=75" orgID="75" click="showOrg(75)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="乌鲁木齐晚报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=76" orgID="76" click="showOrg(76)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="泸州日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=77" orgID="77" click="showOrg(77)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="中国证券报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=78" orgID="78" click="showOrg(78)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="安全生产报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=79" orgID="79" click="showOrg(79)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="南岸报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=80" orgID="80" click="showOrg(80)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="陕西日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=81" orgID="81" click="showOrg(81)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="临沂日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=82" orgID="82" click="showOrg(82)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="广州日报新" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=83" orgID="83" click="showOrg(83)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="江苏传媒" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=84" orgID="84" click="showOrg(84)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="广西日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=85" orgID="85" click="showOrg(85)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="锡林郭勒日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=86" orgID="86" click="showOrg(86)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="云浮日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=87" orgID="87" click="showOrg(87)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="南通日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=88" orgID="88" click="showOrg(88)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="漯河日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=89" orgID="89" click="showOrg(89)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="长沙县" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=90" orgID="90" click="showOrg(90)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="库车日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=91" orgID="91" click="showOrg(91)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="杭州区县" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=92" orgID="92" click="showOrg(92)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="绥化日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=93" orgID="93" click="showOrg(93)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="临沂新" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=94" orgID="94" click="showOrg(94)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="内蒙古日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=95" orgID="95" click="showOrg(95)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="卢氏县" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=96" orgID="96" click="showOrg(96)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="烟台日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=97" orgID="97" click="showOrg(97)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="团结报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=98" orgID="98" click="showOrg(98)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="马鞍山日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=99" orgID="99" click="showOrg(99)" nodetype="1"
+          icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="甘肃区县" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=100" orgID="100" click="showOrg(100)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="广安日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=101" orgID="101" click="showOrg(101)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="格尔木" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=102" orgID="102" click="showOrg(102)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="运城日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=103" orgID="103" click="showOrg(103)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="杭州拱墅区" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=104" orgID="104" click="showOrg(104)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="无锡日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=105" orgID="105" click="showOrg(105)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="嘉兴日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=106" orgID="106" click="showOrg(106)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="杭州临安区" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=107" orgID="107" click="showOrg(107)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="杭州下城区" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=108" orgID="108" click="showOrg(108)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="杭州江干区" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=109" orgID="109" click="showOrg(109)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="杭州滨江区" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=110" orgID="110" click="showOrg(110)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="呼图壁" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=111" orgID="111" click="showOrg(111)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="郴州日报" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=112" orgID="112" click="showOrg(112)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="高台区演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=113" orgID="113" click="showOrg(113)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="天祝县演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=114" orgID="114" click="showOrg(114)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="古浪县演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=115" orgID="115" click="showOrg(115)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="永昌县演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=116" orgID="116" click="showOrg(116)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="敦煌市演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=117" orgID="117" click="showOrg(117)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="玉门市演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=118" orgID="118" click="showOrg(118)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="临洮县演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=119" orgID="119" click="showOrg(119)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="迭部县演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=120" orgID="120" click="showOrg(120)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="临夏市演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=121" orgID="121" click="showOrg(121)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="临河区演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=122" orgID="122" click="showOrg(122)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="江北新区" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=123" orgID="123" click="showOrg(123)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="拜城演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=124" orgID="124" click="showOrg(124)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="卓尼县演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=125" orgID="125" click="showOrg(125)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="岷县演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=126" orgID="126" click="showOrg(126)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+    <tree text="永靖县演示" src="OrgTreeGenerate.do?invoke=roleNode&amp;orgID=130" orgID="130" click="showOrg(130)"
+          nodetype="1" icon="../../images/org.gif" openIcon="../../images/org.gif" fileIcon="../../images/org.gif"
+          contextAction="popmenu(1, this)"/>
+</tree>
