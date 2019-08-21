@@ -8,6 +8,8 @@ import java.util.Date;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,6 +26,7 @@ import com.practice.es.service.ESService;
 /*@RunWith(SpringRunner.class)
 @SpringBootTest*/
 public class ElasticsearchApplicationTests {
+	private static Logger logger = LoggerFactory.getLogger(ElasticsearchApplicationTests.class);
 	@Autowired
 	ESService esService;
 	
@@ -130,13 +133,13 @@ public class ElasticsearchApplicationTests {
 		esSearchReq.setEndTime("2018-7-19 20:12:11");
 		esSearchReq.setTags(Arrays.asList(1));
 		/*ESSearchResp<DocInfo> result = esService.query(esSearchReq);
-		System.out.println(mapper.writeValueAsString(result));*/
+		logger.info(mapper.writeValueAsString(result));*/
 	}
 	
 	//测试聚合查询
 	// @Test
 	public void testAggregationQuery() {
 		/*long total = esService.aggregationQuery("张三");
-		System.out.println("作者张三一共有"+total+"篇文章");*/
+		logger.info("作者张三一共有"+total+"篇文章");*/
 	}
 }

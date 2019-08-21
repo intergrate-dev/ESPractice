@@ -29,7 +29,7 @@ public class TokenManager {
 
     public String getToken() {
         String access_token = null;
-        String key = "espractice:".concat("access_token");
+        String key = "sitemonitor:".concat("access_token");
         if (redisService.exists(key)) {
             access_token = redisService.get(key);
             if (!StringUtils.isEmpty(access_token)) {

@@ -4,35 +4,44 @@
     "jobName": "t_mon",
     "description": "周一3h更新1次",
     "jobGroup": "group_week",
-    "beanClass": "",
-    "cronExpression": "",
-    "jobStatus": "0"
+    "beanClass": "com.practice.common.quartz.task.MediaArticleJob",
+    "cronExpression": "0 0 6-23/3 ? * MON",
+    "jobStatus": "1"
   },
   {
     "id": "002",
     "jobName": "t_tue",
     "description": "周二6h更新1次",
     "jobGroup": "group_week",
-    "beanClass": "",
-    "cronExpression": "",
-    "jobStatus": "0"
+    "beanClass": "com.practice.common.quartz.task.MediaArticleJob",
+    "cronExpression": "0 0 */6 ? * TUE",
+    "jobStatus": "1"
   },
   {
-    "id": "001",
+    "id": "003",
     "jobName": "t_wed",
     "description": "周三12h更新1次",
     "jobGroup": "group_week",
-    "beanClass": "",
-    "cronExpression": "",
-    "jobStatus": "0"
+    "beanClass": "com.practice.common.quartz.task.MediaArticleJob",
+    "cronExpression": "0 0 */12 ? * WED",
+    "jobStatus": "1"
   },
   {
-    "id": "001",
-    "jobName": "t_remainds",
+    "id": "004",
+    "jobName": "t_thus_sat",
     "description": "周四到周日24h更新1次",
     "jobGroup": "group_week",
-    "beanClass": "",
-    "cronExpression": "",
-    "jobStatus": "0"
+    "beanClass": "com.practice.common.quartz.task.MediaArticleJob",
+    "cronExpression": "0 0 23 ? * THUR-SAT",
+    "jobStatus": "1"
+  },
+  {
+    "id": "005",
+    "jobName": "t_sun",
+    "description": "周日24h更新1次",
+    "jobGroup": "group_week",
+    "beanClass": "com.practice.common.quartz.task.MediaArticleJob",
+    "cronExpression": "0 0 23 ? * SUN",
+    "jobStatus": "1"
   }
 ]

@@ -33,8 +33,6 @@ public class DocService {
 	 * @param docInfo
 	 */
 	public void createDoc(DocInfo docInfo) {
-		//TODO 这里拿到文档信息，调用dao执行入库
-		
 		//入库成功后，向RabbitMQ发消息 由消费者来解析文件，提取摘要，构造documentTemplate，索引文档
 		RabbitMessage rabbitMessage = new RabbitMessage();
 		rabbitMessage.setOperation(EnumOperation.ADD);
@@ -47,8 +45,6 @@ public class DocService {
 	 * @param docInfo
 	 */
 	public void modifyDoc(DocInfo docInfo) {
-		//TODO 这里拿到文档信息，调用dao执行更新
-		
 		//更新成功后，向RabbitMQ发消息 由消费者来解析文件，提取摘要，构造documentTemplate，索引文档
 		RabbitMessage rabbitMessage = new RabbitMessage();
 		rabbitMessage.setOperation(EnumOperation.MODIFY);
@@ -58,8 +54,6 @@ public class DocService {
 	}
 	
 	public void deleteDoc(DocInfo docInfo) {
-		//TODO 这里拿到文档信息，调用dao执行删除
-		
 		//删除成功后，向RabbitMQ发消息 由消费者来通知es删除被索引文档
 		RabbitMessage rabbitMessage = new RabbitMessage();
 		rabbitMessage.setOperation(EnumOperation.DELETE);

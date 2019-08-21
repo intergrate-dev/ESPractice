@@ -8,15 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Controller
@@ -43,9 +37,9 @@ public class ApiController {
         Map<String, Object> queryMap =  null;
         try {
             // types: wechat,weibo
-            queryMap = apiService.queryMediaSrouce(pageNo, limit, types, mediaId);
+            /*queryMap = apiService.queryMediaSrouce(pageNo, limit, types, mediaId);
             queryMap.put("mediaId", mediaId);
-            apiService.cacheMediaSource(queryMap);
+            apiService.cacheMediaSource(queryMap);*/
         } catch (Exception e) {
             logger.error("----------------------- 获取站点信息失败！， error: {} --------------------------", e.getMessage());
             e.printStackTrace();
@@ -66,36 +60,11 @@ public class ApiController {
 
         Map<String, Object> queryMap =  null;
         try {
-            //TODO task
-            queryMap = apiService.getMediaArticles(pageNo, limit, types, mediaId);
+            //queryMap = apiService.getMediaArticles(pageNo, limit, types, mediaId);
         } catch (Exception e) {
             logger.error("----------------------- 获取站点信息失败！， error: {} --------------------------", e.getMessage());
             e.printStackTrace();
             return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, "获取站点更新信息失败！");
-        }
-        return ResponseObject.newSuccessResponseObject(queryMap, SystemConstant.REQ_SUCCESS);
-    }
-
-
-    /**
-     *
-     * 获取配置项，启动
-     */
-    @RequestMapping(value = "/sourceInit", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseObject sourceInit(@RequestParam(name = "mediaId", required = true) String mediaId,
-                                          @RequestParam(name = "ids", required = true) String ids,
-                                          @RequestParam(name = "names", required = true) String names,
-                                          @RequestParam(name = "types", required = true) String types) {
-
-        Map<String, Object> queryMap =  null;
-        try {
-            //types: wechat
-            apiService.sourceInit(mediaId, ids, names, Arrays.asList(types));
-        } catch (Exception e) {
-            logger.error("----------------------- 获取站点信息失败！， error: {} --------------------------", e.getMessage());
-            e.printStackTrace();
-            return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, "获取信息失败！");
         }
         return ResponseObject.newSuccessResponseObject(queryMap, SystemConstant.REQ_SUCCESS);
     }
@@ -107,20 +76,23 @@ public class ApiController {
      */
     @RequestMapping(value = "/queryMediaStats", method = RequestMethod.POST)
     @ResponseBody
+    @CrossOrigin("*")
     public ResponseObject queryMediaStats(@RequestParam(name = "mediaId", required = true) String mediaId,
-                                          @RequestParam(name = "ids", required = true) String ids,
-                                          @RequestParam(name = "names", required = true) String names,
+                                          @RequestParam(name = "codes", required = true) String codes,
+                                          @RequestParam(name = "names", required = false) String names,
                                           @RequestParam(name = "types", required = true) String types) {
 
         Map<String, Object> queryMap =  null;
         try {
-            //types: wechat
-            queryMap = apiService.queryMediaStats(mediaId);
+            // TODO api token
+            queryMap = apiService.queryMediaStats(mediaId, codes, names, types);
         } catch (Exception e) {
             logger.error("----------------------- 获取站点信息失败！， error: {} --------------------------", e.getMessage());
             e.printStackTrace();
-            return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, "获取站点更新信息失败！");
+            return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, String.valueOf(queryMap.get("errMsg")));
         }
+        logger.info("------------------------ queryMediaStats, return datas  --------------------");
         return ResponseObject.newSuccessResponseObject(queryMap, SystemConstant.REQ_SUCCESS);
     }
+
 }

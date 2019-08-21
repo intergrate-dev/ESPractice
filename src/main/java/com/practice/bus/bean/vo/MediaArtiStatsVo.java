@@ -8,9 +8,14 @@ import java.util.List;
  */
 public class MediaArtiStatsVo implements Serializable {
 
+    public static final String TOTAL_VISIT = "visitTotal";
+    public static final String TOTAL_LIKE = "likeTotal";
+
     private String id;
     private String sourceName;
-    private List<Stats> stats;
+    private List<String> scan;
+    private List<String> like;
+    private List<String> publish;
 
     public String getId() {
         return id;
@@ -28,62 +33,27 @@ public class MediaArtiStatsVo implements Serializable {
         this.sourceName = sourceName;
     }
 
-    public List<Stats> getStats() {
-        return stats;
+    public List<String> getScan() {
+        return scan;
     }
 
-    public void setStats(List<Stats> stats) {
-        this.stats = stats;
+    public void setScan(List<String> scan) {
+        this.scan = scan;
     }
 
-    public static class Stats {
-        private String weekday;
-        private Data data;
+    public List<String> getLike() {
+        return like;
+    }
 
-        public String getWeekday() {
-            return weekday;
-        }
+    public void setLike(List<String> like) {
+        this.like = like;
+    }
 
-        public void setWeekday(String weekday) {
-            this.weekday = weekday;
-        }
+    public List<String> getPublish() {
+        return publish;
+    }
 
-        public Data getData() {
-            return data;
-        }
-
-        public void setData(Data data) {
-            this.data = data;
-        }
-
-        public static class Data {
-            private int publish;
-            private int scan;
-            private int like;
-
-            public int getPublish() {
-                return publish;
-            }
-
-            public void setPublish(int publish) {
-                this.publish = publish;
-            }
-
-            public int getScan() {
-                return scan;
-            }
-
-            public void setScan(int scan) {
-                this.scan = scan;
-            }
-
-            public int getLike() {
-                return like;
-            }
-
-            public void setLike(int like) {
-                this.like = like;
-            }
-        }
+    public void setPublish(List<String> publish) {
+        this.publish = publish;
     }
 }

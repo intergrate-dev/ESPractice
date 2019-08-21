@@ -20,27 +20,7 @@ public class CommonUtil {
         return buffer.substring(0, buffer.length() - 1);
     }
 
-    public static JSONArray lastWeekMondayToSunday() {
-        JSONArray dateRange = new JSONArray();
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd ");
-        String monday = null;
-        String sunday = null;
-        Calendar cal = Calendar.getInstance();
-        Date today = new Date();
-        cal.setTime(today);
-        if (cal.get(Calendar.DAY_OF_WEEK) == 1) {
-            cal.add(Calendar.DAY_OF_MONTH, -7);
-        } else {
-            cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-        }
-        sunday = format.format(cal.getTime()).concat("23:59:59");
-        cal.add(Calendar.DAY_OF_MONTH, -6);
-        monday = format.format(cal.getTime()).concat("00:00:00");
-        logger.info("monday: {}, sunday: {}", monday, sunday);
-        dateRange.add(monday);
-        dateRange.add(sunday);
-        return dateRange;
-    }
+
 
     public static void main(String[] args) {
         String monday = null;

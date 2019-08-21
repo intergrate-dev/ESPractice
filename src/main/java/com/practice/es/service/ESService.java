@@ -9,11 +9,15 @@ import com.frameworkset.util.RegexUtil;
 import com.practice.bus.bean.DocInfo;
 import com.practice.bus.bean.MediaArticle;
 import com.practice.bus.bean.SiteMonitorEntity;
+import com.practice.bus.bean.vo.MediaArtiStatsVo;
 import com.practice.es.core.RestClientTemplate;
+import com.practice.util.DateParseUtil;
 import com.practice.util.FastJsonConvertUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.DocWriteResponse;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -33,10 +37,14 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.ParsedDateHistogram;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.ParsedStats;
+import org.elasticsearch.search.aggregations.metrics.ParsedSum;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
@@ -79,6 +87,7 @@ public class ESService {
     private final static String INDEX = "doc";
     private final static String TYPE = "office";
     private final static String INDEX_SITE = "sitemonitor";
+    private final static String INDEX_ARTICLE = "media_article";
 
     /**
      * 添加文档
@@ -241,7 +250,7 @@ public class ESService {
         indexRequest.source(JSON.toJSON(entity).toString(), XContentType.JSON);
         try {
             IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
-            logger.info("------------------ createSiteInfo, indexResponse status: {}, source: {} ----------------", indexResponse.status(), indexRequest.source());
+            logger.info("------------------ createSiteInfo, rId: {}, indexResponse status: {}, source: {} ----------------", rId, indexResponse.status(), indexRequest.source());
         } catch (IOException e) {
             logger.error("================= createSiteInfo error, id: {}, error: {} =============", indexRequest.id(), e.getMessage());
             e.printStackTrace();
@@ -287,7 +296,6 @@ public class ESService {
                 //.size(100)
                 .sort("status", SortOrder.ASC);
 
-        // TODO 按站点状态聚合查询
         SearchRequest searchRequest = new SearchRequest(INDEX_SITE);
         searchRequest.source(sourceBuilder);
         SearchResponse response = null;
@@ -416,91 +424,113 @@ public class ESService {
 
     public void createMediaArticle(MediaArticle entity) {
         String rId = MediaArticle.genRequestId(entity);
-        String index = INDEX_SITE;
-        this.createEsEntity(entity, rId, index);
+        this.createEsEntity(entity, rId, INDEX_ARTICLE);
     }
 
     public Map<String, Object> querayMediaStats(String mediaId, Integer integer) throws IOException {
         Map<String, Object> resMap = new HashMap<>();
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         Integer from = 0;
-        Integer offSize = 5000;
+        Integer offSize = 10000;
         sourceBuilder.from(from);
         sourceBuilder.size(offSize);
-        String[] includes = new String[]{"id", "siteName", "task", "status", "dataChannel", "createTime", "updateTime"};
+        String[] includes = new String[]{"id", "name", "mediaId", "dataType", "pubdate", "location", "weekOfYear"};
         sourceBuilder.fetchSource(includes, new String[]{});
+        TermQueryBuilder termByMedia = QueryBuilders.termQuery("mediaId", mediaId);
+        TermQueryBuilder termByWeek = QueryBuilders.termQuery("weekOfYear", DateParseUtil.queryTodayWeekOfYear(new Date()));
 
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
+        boolBuilder.must(termByMedia);
+        boolBuilder.must(termByWeek);
         sourceBuilder.query(boolBuilder)
-                .aggregation(AggregationBuilders.terms("aggreofid").field("id").size(offSize)
-                                .subAggregation(AggregationBuilders.stats("aggreofstatus").field("status"))
-                )
-                .sort("status", SortOrder.ASC);
-        // TODO 按站点状态聚合查询
-        SearchRequest searchRequest = new SearchRequest(INDEX_SITE);
+                .aggregation(AggregationBuilders.terms("aggofname").field("name").size(offSize)
+                        .subAggregation(AggregationBuilders.dateHistogram("dataShow").field("pubdate").calendarInterval(DateHistogramInterval.DAY)
+                                .format(DateParseUtil.DATE_STRICK)
+                                .subAggregation(AggregationBuilders.sum("visitTotal").field("visitCount"))
+                                .subAggregation(AggregationBuilders.sum("likeTotal").field("likeCount"))
+                        )
+                ).sort("pubdate", SortOrder.ASC);
+
+        SearchRequest searchRequest = new SearchRequest(INDEX_ARTICLE);
         searchRequest.source(sourceBuilder);
         SearchResponse response = null;
         response = client.search(searchRequest, RequestOptions.DEFAULT);
-        SearchHits searchHits = response.getHits();
-        SearchHit[] hits = searchHits.getHits();
-        Map<String, SiteMonitorEntity> map = new HashMap<>();
-        Arrays.stream(hits).forEach(hit -> {
-            SiteMonitorEntity sme = FastJsonConvertUtil.convertJSONToObject(hit.getSourceAsString(), SiteMonitorEntity.class);
-            if (!map.containsKey(sme.getId())) {
-                //map.put(sme.getId(), sme);
-                map.put(sme.getId().toLowerCase(), sme);
-            }
-        });
+
         List<Aggregation> aggregations = response.getAggregations().asList();
         List<? extends Terms.Bucket> buckets = ((ParsedStringTerms) aggregations.get(0)).getBuckets();
-        JSONArray arrayFir = new JSONArray();
-        JSONArray arraySec = new JSONArray();
-        JSONArray arrayThir = new JSONArray();
+        List<MediaArtiStatsVo> masvList = new ArrayList<>();
         buckets.stream().forEach(b -> {
-            String key = (String) ((Terms.Bucket) b).getKey();
-            if (RegexUtil.isMatch(key, ".*[a-zA-Z]+.*")) {
-                //key = key.toUpperCase().concat("==");
-                key = key.concat("==");
-            }
-            String keyCp = "-".concat((String) key);
-            List<Aggregation> aggrs = ((Terms.Bucket) b).getAggregations().asList();
-            if (aggrs != null && aggrs.size() > 0) {
-                Aggregation aggregation = aggrs.get(0);
-                SiteMonitorEntity entity = map.get(key) == null ? map.get(keyCp) : map.get(key);
-                if (entity == null) {
-                    logger.info("-------------------------- entity empty key: {} -----------------------------", key);
-                }
-                if (map.containsKey(key) || map.containsKey(keyCp)) {
-                    JSONObject json = new JSONObject();
-                    json.put("id", entity.getId());
-                    json.put("siteName", entity.getSiteName());
-                    json.put("dataChannel", entity.getDataChannel());
-                    json.put("createTime", entity.getCreateTime());
-                    json.put("updateTime", entity.getUpdateTime());
-                    if (aggregation instanceof ParsedStats) {
-                        ParsedStats at = (ParsedStats) aggregation;
-                        if (at.getMin() == -1L) {
-                            json.put("status", "-1");
-                            arrayFir.add(json);
-                        } else {
-                            if (at.getAvg() == 1L) {
-                                json.put("status", "1");
-                                arrayThir.add(json);
-                            } else {
-                                json.put("status", "0");
-                                arraySec.add(json);
-                            }
-                        }
+            ParsedStringTerms.ParsedBucket pst = (ParsedStringTerms.ParsedBucket) b;
+            List<? extends Histogram.Bucket> hgs = ((ParsedDateHistogram) pst.getAggregations().asList().get(0)).getBuckets();
+            MediaArtiStatsVo masv = new MediaArtiStatsVo();
+            masv.setSourceName(pst.getKeyAsString());
+
+            List<String> publish = new ArrayList<>();
+            List<String> scan = new ArrayList<>();
+            List<String> like = new ArrayList<>();
+            List<String> hgIncludeKeys = new ArrayList<>();
+            hgs.stream().forEach(hg -> {
+                hgIncludeKeys.add(((ParsedDateHistogram.ParsedBucket) hg).getKeyAsString());
+                publish.add(this.filtPostfix(String.valueOf(hg.getDocCount())));
+                List<Aggregation> hists = ((ParsedDateHistogram.ParsedBucket) hg).getAggregations().asList();
+                hists.stream().forEach(cv -> {
+                    ParsedSum ps = (ParsedSum) cv;
+                    if (ps.getName().equals(MediaArtiStatsVo.TOTAL_VISIT)) {
+                        scan.add(this.filtPostfix(ps.getValueAsString()));
                     }
-                    json.put("extInfo", entity.getExtInfo());
+                    if (ps.getName().equals(MediaArtiStatsVo.TOTAL_LIKE)) {
+                        like.add(this.filtPostfix(ps.getValueAsString()));
+                    }
+                });
+            });
+
+            List<String> days = DateParseUtil.datesOfLastWeek();
+            if (hgIncludeKeys.size() < days.size()) {
+                for (String day : days) {
+                    if (hgIncludeKeys.contains(day)) {
+                        continue;
+                    }
+                    publish.add(days.indexOf(day), "0");
+                    scan.add(days.indexOf(day), "0");
+                    like.add(days.indexOf(day), "0");
                 }
             }
+            masv.setPublish(publish);
+            masv.setScan(scan);
+            masv.setLike(like);
+            masvList.add(masv);
         });
-        arraySec.addAll(arrayThir);
-        arrayFir.addAll(arraySec);
-        //按分页取
-        resMap.put("list", arrayFir);
+        resMap.put("total", masvList.size());
+        resMap.put("rows", masvList);
         //logger.info("------------------------- es esearch response: {} ------------------------------", response.toString());
         return resMap;
+    }
+
+    private String filtPostfix(String source) {
+        if (StringUtils.isEmpty(source)) {
+            return null;
+        }
+        if (source.contains(".")) {
+            return source.substring(0, source.indexOf("."));
+        }
+        return source;
+    }
+
+    public void bulkPutIndex(List<MediaArticle> mas) {
+        BulkRequest request = new BulkRequest();
+        for (MediaArticle ma : mas) {
+            String rId = MediaArticle.genRequestId(ma);
+            IndexRequest indexRequest = new IndexRequest(INDEX_ARTICLE).id(rId);
+            indexRequest.source(JSON.toJSON(ma).toString(), XContentType.JSON);
+            request.add(indexRequest);
+        }
+        BulkResponse bulk = null;
+        try {
+            bulk = client.bulk(request, RequestOptions.DEFAULT);
+            logger.info("------------------------ bulkPutIndex, status: {} --------------------", bulk.status());
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.error("========================== bulkPutIndex occure error, message: {} =====================", bulk.buildFailureMessage());
+        }
     }
 }

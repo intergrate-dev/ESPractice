@@ -3,7 +3,7 @@ package com.practice.common;
 import java.io.Serializable;
 
 /**
- * 请求的返回结果。 如果:success=true resultObject=处理结果； 如果:success=false errorMessage=错误信息
+ * 请求的返回结果。 如果:success=true data=处理结果； 如果:success=false message=错误信息
  * 
  *
  */
@@ -21,45 +21,44 @@ public class ResponseObject implements Serializable {
 
 	private Integer status = status_200; // 正常请求
 
-	private String errorMessage;
+	private String message;
 
-	private Object resultObject;
+	private Object data;
 
-	public static ResponseObject newErrorResponseObject(Integer status, String errorMessage) {
+	public static ResponseObject newErrorResponseObject(Integer status, String message) {
 		ResponseObject res = new ResponseObject();
 		res.setStatus(status);
-		res.setErrorMessage(errorMessage);
+		res.setMessage(message);
 		return res;
 	}
 
-	public static ResponseObject newSuccessResponseObject(Object resultObject) {
+	public static ResponseObject newSuccessResponseObject(Object data) {
 		ResponseObject res = new ResponseObject();
-		res.setResultObject(resultObject);
+		res.setData(data);
 		return res;
 	}
 
-	public static ResponseObject newSuccessResponseObject(Object resultObject, String message) {
+	public static ResponseObject newSuccessResponseObject(Object data, String message) {
 		ResponseObject res = new ResponseObject();
-		res.setResultObject(resultObject);
-		res.setErrorMessage(message);
+		res.setData(data);
+		res.setMessage(message);
 		return res;
 	}
 
-
-	public String getErrorMessage() {
-		return errorMessage;
+	public String getMessage() {
+		return message;
 	}
 
-	public void setErrorMessage(String errorMessage) {
-		this.errorMessage = errorMessage;
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
-	public Object getResultObject() {
-		return resultObject;
+	public Object getData() {
+		return data;
 	}
 
-	public void setResultObject(Object resultObject) {
-		this.resultObject = resultObject;
+	public void setData(Object data) {
+		this.data = data;
 	}
 
 	public Integer getStatus() {

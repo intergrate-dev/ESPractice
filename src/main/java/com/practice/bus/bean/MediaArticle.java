@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.practice.util.DateParseUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -31,7 +32,9 @@ public class MediaArticle implements Serializable {
     private String title;
     private int visitCount;
     private int likeCount;
-    private Date pubdate;
+    /*@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private Date pubdate;*/
+    private String pubdate;
     private String location;
     private Integer weekOfYear;
 
@@ -107,11 +110,19 @@ public class MediaArticle implements Serializable {
         this.likeCount = likeCount;
     }
 
-    public Date getPubdate() {
+    /*public Date getPubdate() {
         return pubdate;
     }
 
     public void setPubdate(Date pubdate) {
+        this.pubdate = pubdate;
+    }*/
+
+    public String getPubdate() {
+        return pubdate;
+    }
+
+    public void setPubdate(String pubdate) {
         this.pubdate = pubdate;
     }
 
@@ -131,28 +142,29 @@ public class MediaArticle implements Serializable {
         this.weekOfYear = weekOfYear;
     }
 
-    public static List<MediaArticle> docsParseToList(String documents) {
-        if (StringUtils.isEmpty(documents)) {
+    public static List<MediaArticle> docsParseToList(JSONObject jsonObject) {
+        if (!jsonObject.containsKey("rows") || StringUtils.isEmpty(jsonObject.getString("rows"))) {
             return null;
         }
-        JSONArray array = JSONArray.parseArray(documents);
+
+        JSONArray array = JSONArray.parseArray(jsonObject.getString("rows"));
         List<MediaArticle> list = new ArrayList<>();
-        //TODO memory
         array.stream().forEach(a -> {
             JSONObject json = (JSONObject) a;
             MediaArticle ma = new MediaArticle();
             ma.setId(json.getString("id"));
-            ma.setDataType(json.getString("dateType"));
-            ma.setMediaId(json.getInteger(json.getString("mediaId")));
+            ma.setDataType(json.getString("dataType"));
+            ma.setMediaId(Integer.parseInt(jsonObject.getString("mediaId")));
             if (json.containsKey("author")) {
                 JSONObject author = JSONObject.parseObject(json.getString("author"));
                 ma.setCode(author.getString("code"));
                 ma.setName(author.getString("nickName"));
             }
-            ma.setPubdate(DateParseUtil.stringToDateTime(json.getString("pubdate")));
             ma.setTitle(json.getString("title"));
-            ma.setVisitCount(json.getInteger("vistCount"));
-            ma.setLikeCount(json.getInteger("likeCount"));
+            //ma.setPubdate(DateParseUtil.stringToDateTime(json.getString("pubdate")));
+            ma.setPubdate(json.getString("pubdate"));
+            ma.setVisitCount(Integer.parseInt(json.getString("visitCount")));
+            ma.setLikeCount(Integer.parseInt(json.getString("likeCount")));
             ma.setLocation(json.getString("location"));
             ma.setWeekOfYear(DateParseUtil.queryTodayWeekOfYear(new Date()));
             list.add(ma);
@@ -161,6 +173,7 @@ public class MediaArticle implements Serializable {
     }
 
     public static String genRequestId(MediaArticle entity) {
-        return entity.getMediaId() + "-" + entity.getCode() + "-" + entity.getWeekOfYear();
+        //return entity.getMediaId() + "-" + entity.getCode() + "-" + entity.getWeekOfYear();
+        return entity.getMediaId() + "|" + entity.getCode() + "|" + entity.getWeekOfYear() + "|" + entity.getId();
     }
 }

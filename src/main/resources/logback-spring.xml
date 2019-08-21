@@ -5,7 +5,8 @@
 
     <!-- 设置log日志存放地址 -->
     <!--（改） 单环境设置 -->
-    <property name="LOG_HOME" value="/var/log/ESPractice/logs" />
+    <property name="LOG_HOME" value="/var/log/siteMonitor/logs" />
+    <!--<property name="LOG_HOME" value="./logs" />-->
 
     <!-- 多环境设置 （如果你需要设置区分 生产环境，测试环境...）-->
     <!-- 如果需要设置多环境的配置，只设置以下注释内容是不够的，还需要给每个环境设置对应的配置文件如（application-dev.properties）-->

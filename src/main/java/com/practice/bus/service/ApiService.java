@@ -1,5 +1,6 @@
 package com.practice.bus.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.practice.bus.bean.MediaArticle;
@@ -14,14 +15,21 @@ import com.practice.util.CommonUtil;
 import com.practice.util.DateParseUtil;
 import com.practice.util.FastJsonConvertUtil;
 import com.practice.util.JsonUtil;
+import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.frameworkset.spi.async.annotation.Async;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -49,13 +57,13 @@ public class ApiService {
     BigScreenConfig bigScreenConfig;
 
     public Map<String, Object> queryMediaSrouce(Integer pageNo, Integer limit, List<String> types, String mediaId) {
-        // TODO 媒体文件配置表整理
-        String url = "/api/source";
+        /*String url = "/api/source";
         Map<String, String> map = new HashMap<>();
         map.put("type", CommonUtil.listToString(types));
         map.put("mediaId", mediaId);
         map.put("access_token", tokenManager.getToken());
-        return httpAPIService.callForienApi(url, map);
+        return httpAPIService.callForienApi(url, map);*/
+        return null;
     }
 
     public Map<String, Object> getMediaArticles(Integer pageNo, Integer limit, List<String> types, String mediaId) {
@@ -65,6 +73,7 @@ public class ApiService {
         map.put("sortField", "pubdate");
         map.put("sortType", "desc");
         map.put("dataType", CommonUtil.listToString(types));
+        /*map.put("wechatBiz", "MzIyMDU1Nzc0MA==,MzAxNTQ4OTgyMw==");
         types.stream().forEach(type -> {
             if (ids.containsKey(type) && !StringUtils.isEmpty(ids.getString(type))) {
                 switch (type) {
@@ -80,35 +89,42 @@ public class ApiService {
                         break;
                 }
             }
-        });
-        return this.extract(pageNo, limit, mediaId, map);
+        });*/
+        //return this.fetchApiArticles(pageNo, limit, mediaId, map);
+        return null;
     }
 
-    private Map<String, Object> extract(Integer pageNo, Integer limit, String mediaId, Map<String, String> map) {
-        if (!StringUtils.isEmpty(mediaId)) {
-            map.put("mediaIds", mediaId);
-        }
-        JSONArray weekDays = CommonUtil.lastWeekMondayToSunday();
+    private Map<String, Object> fetchApiArticles(Integer pageNo, Integer limit, String mediaId, Map<String, String> map) {
+        JSONArray weekDays = DateParseUtil.lastWeekMondayToSunday();
         map.put("beginTime", weekDays.getString(0));
         map.put("endTime", weekDays.getString(1));
         map.put("access_token", tokenManager.getToken());
         map.put("page", pageNo == null ? "1" : String.valueOf(pageNo));
         map.put("pagesize", limit == null ? "10" : String.valueOf(limit));
-        logger.info("------------------------ getMediaArticles, map: {} --------------------", map);
+        logger.info("------------------------ getMediaArticles, time: {}, map: {} --------------------",
+                DateParseUtil.dateTimeToString(new Date()), FastJsonConvertUtil.convertObjectToString(map));
         String url = "/api/query/media";
         Map<String, Object> resMap = httpAPIService.callForienApi(url, map);
-        // TODO asyn
+        return resMap;
+    }
+
+    @Async
+    public void asyncInsertEs(String mediaId, Map<String, Object> resMap) {
         JSONObject json = (JSONObject) resMap.get("result");
-        if (json.containsKey("documents")) {
-            List<MediaArticle> mas = MediaArticle.docsParseToList(json.getString("documents"));
+        if (json.containsKey("rows")) {
+            /*logger.info("------------------------ getMediaArticles, time: {}, url: {}, documents: {} --------------------",
+                    DateParseUtil.dateTimeToString(new Date()), url, json.getString("rows"));*/
+            json.put("mediaId", mediaId);
+            List<MediaArticle> mas = MediaArticle.docsParseToList(json);
             if (mas != null) {
-                // TODO if need, modify batch insert, via cache
-                for (MediaArticle ma : mas) {
+                /*for (MediaArticle ma : mas) {
+                    logger.info("------------------------ asyncInsertEs, insertToEs, mas id: {} --------------------", ma.getId());
                     esService.createMediaArticle(ma);
-                }
+                }*/
+                logger.info("------------------------ asyncInsertEs, bulk size: {} --------------------", mas.size());
+                esService.bulkPutIndex(mas);
             }
         }
-        return resMap;
     }
 
     private String getMediaCode(Boolean ignoreAcode, String mediaId) {
@@ -119,7 +135,7 @@ public class ApiService {
             JSONObject json = null;
             for (Object o : array) {
                 JSONObject jb = (JSONObject) o;
-                if (jb.getString("ids").equals(mediaId)) {
+                if (jb.getString("mediaId").equals(mediaId)) {
                     json = jb;
                 }
             }
@@ -127,9 +143,9 @@ public class ApiService {
                 return "";
             }
             JSONObject mcode = new JSONObject();
-            mcode.put("mcode", json.getString("ids"));
+            mcode.put("mcode", json.getString("mediaId"));
             if (!ignoreAcode) {
-                mcode.put("acode", json.getString("aids"));
+                mcode.put("acode", json.getString("codes"));
             }
             mcode.put("ucode", json.getString("uids"));
             String text = mcode.toString();
@@ -196,18 +212,75 @@ public class ApiService {
         }
     }
 
-    public void sourceInit(String mediaId, String ids, String names, List<String> types) {
+    public void fetchAndPutData(String mediaId, String codes, String names, String types) {
         Map<String, String> map = new HashMap<>();
         map.put("sortField", "pubdate");
-        map.put("sortType", "desc");
-        map.put("dataType", CommonUtil.listToString(types));
-        map.put("wechatBiz", ids);
+        map.put("sortType", "asc");
+        map.put("dataType", types);
+        // 单一信源查询(信源--统计页面)
+        if (StringUtils.isEmpty(types)) {
+            logger.error("========================== fetchAndPutData types are empty  =====================");
+            return ;
+        }
+        switch (types) {
+            case SystemConstant.SOURCE_WECHAT:
+                map.put("wechatBiz", types);
+                break;
+            case SystemConstant.SOURCE_WEIBO:
+                map.put("weiboId", types);
+                break;
+            default:
+                map.put("siteId", types);
+                break;
+        }
         Integer pageNo = 1;
-        Integer limit = 5000;
-        this.extract(pageNo, limit, mediaId, map);
+        Integer limit = 1000;
+        Map<String, Object> resMap = this.fetchApiArticles(pageNo, limit, mediaId, map);
+        if (resMap.get("result") == null) {
+            return;
+        }
+        Integer pageCount = JSONObject.parseObject(resMap.get("result").toString()).getInteger("pageCount") + 1;
+        this.asyncInsertEs(mediaId, resMap);
+        for (int i = 2; i < pageCount; i++) {
+            resMap = this.fetchApiArticles(i, limit, mediaId, map);
+            if (resMap.get("result") == null) {
+                break;
+            }
+            this.asyncInsertEs(mediaId, resMap);
+        }
     }
 
-    public Map<String, Object> queryMediaStats(String mediaId) {
+    public Map<String, Object> queryMediaStats(String mediaId, String codes, String names, String types) throws IOException {
+        String key = SystemConstant.PREFIX_MEDIA_SOURCE.concat(mediaId);
+        if (!redisService.exists(key) || redisService.get(key) == null) {
+            codes = URLDecoder.decode(codes, "UTF-8");
+            this.fetchAndPutData(mediaId, codes, names, types);
+            this.cacheMediaConf(mediaId, codes, types, key);
+        }
         return esService.querayMediaStats(mediaId, DateParseUtil.queryTodayWeekOfYear(new Date()));
+    }
+
+    private void cacheMediaConf(String mediaId, String codes, String types, String key) {
+        redisService.set(key, codes, -1);
+        String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
+        JSONArray array = new JSONArray();
+        String jsonConf = JsonUtil.readJsonFile(path);
+        if (!StringUtils.isEmpty(jsonConf)) {
+            array = JSONArray.parseArray(jsonConf);
+        }
+        JSONArray finalArray = new JSONArray();
+        finalArray.addAll(array);
+        array.stream().forEach(a -> {
+            JSONObject json = (JSONObject) a;
+            if (json.getString("mediaId").equals(mediaId)) {
+                finalArray.remove(json);
+            }
+        });
+        JSONObject json = new JSONObject();
+        json.put("mediaId", mediaId);
+        json.put("codes", codes);
+        json.put("types", types);
+        finalArray.add(json);
+        JsonUtil.writeJson(finalArray.toString(), path);
     }
 }
