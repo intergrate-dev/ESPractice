@@ -2,8 +2,12 @@ package com.practice.common.quartz.task;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.practice.bus.bean.param.MediaStatsParam;
 import com.practice.bus.service.ApiService;
+import com.practice.common.SystemConstant;
+import com.practice.common.redis.RedisService;
 import com.practice.util.DateParseUtil;
+import com.practice.util.FastJsonConvertUtil;
 import com.practice.util.JsonUtil;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -24,18 +28,23 @@ public class MediaArticleJob implements Job {
     @Autowired
     ApiService apiService;
 
+    @Autowired
+    RedisService redisService;
+
     @Override
     public void execute(JobExecutionContext jobExecContext) throws JobExecutionException {
         logger.info("----------------------- 定时任务 开始执行, 时间： {}", DateParseUtil.dateTimeToString(new Date()));
-        String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
-        JSONArray array = JSONArray.parseArray(JsonUtil.readJsonFile(path));
+        //String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
+        //JSONArray array = JSONArray.parseArray(JsonUtil.readJsonFile(path));
+        // JSONArray array = JSONArray.parseArray(JsonUtil.readFromResStream("conf/media-conf.json"));
+        JSONArray array = JSONArray.parseArray(redisService.get(SystemConstant.KEY_MEDIA_SOURCE_CONF));
         if (array == null || array.size() == 0) {
             return;
         }
         array.stream().forEach(a -> {
             JSONObject json = (JSONObject) a;
-            apiService.fetchAndPutData(json.getString("mediaId"), json.getString("codes"), null,
-                    json.getString("types"));
+            //FastJsonConvertUtil.convertJSONToObject(json.toString(), MediaStatsParam.class);
+            apiService.fetchAndPutData(FastJsonConvertUtil.convertJSONToObject(json.toString(), MediaStatsParam.class));
         });
     }
 

@@ -12,9 +12,21 @@ public class MediaArtiStatsVo implements Serializable {
     public static final String TOTAL_LIKE = "likeTotal";
 
     private String id;
+    /**
+     * 公众号名称
+     */
     private String sourceName;
+    /**
+     * 浏览量
+     */
     private List<String> scan;
+    /**
+     * 点赞数
+     */
     private List<String> like;
+    /**
+     * 发稿数
+     */
     private List<String> publish;
 
     public String getId() {

@@ -110,13 +110,13 @@ new Vue({
                 success: function (data) {
                     if (data.status == 200) {
                         obj.loading = false;
-                        obj.total = data.resultObject.totalCount;
-                        obj.totalPage = data.resultObject.totalPage;
-                        obj.countData = data.resultObject.statusStats;
-                        obj.tableData = data.resultObject.list;
+                        obj.total = data.data.totalCount;
+                        obj.totalPage = data.data.totalPage;
+                        obj.countData = data.data.statusStats;
+                        obj.tableData = data.data.list;
                     } else {
                         obj.loading = false;
-                        console.log(data.errorMessage)
+                        console.log(data.message)
                     }
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {

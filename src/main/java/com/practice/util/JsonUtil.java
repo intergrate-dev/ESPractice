@@ -12,7 +12,7 @@ public class JsonUtil {
         String jsonStr = "";
         try {
             File jsonFile = new File(fileName);
-            FileReader fileReader = new FileReader(jsonFile);
+            //FileReader fileReader = new FileReader(jsonFile);
 
             Reader reader = new InputStreamReader(new FileInputStream(jsonFile), "utf-8");
             int ch = 0;
@@ -20,7 +20,32 @@ public class JsonUtil {
             while ((ch = reader.read()) != -1) {
                 sb.append((char) ch);
             }
-            fileReader.close();
+            //fileReader.close();
+            reader.close();
+            jsonStr = sb.toString();
+
+            return jsonStr;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static String readFromResStream(String resPath) {
+        InputStream inputStream = JsonUtil.class.getClassLoader().getResourceAsStream(resPath);
+        String jsonStr = "";
+        try {
+            //File jsonFile = new File(fileName);
+            //FileReader fileReader = new FileReader(jsonFile);
+
+            //Reader reader = new InputStreamReader(new FileInputStream(jsonFile), "utf-8");
+            Reader reader = new InputStreamReader(inputStream, "utf-8");
+            int ch = 0;
+            StringBuffer sb = new StringBuffer();
+            while ((ch = reader.read()) != -1) {
+                sb.append((char) ch);
+            }
+            //fileReader.close();
             reader.close();
             jsonStr = sb.toString();
 
@@ -49,9 +74,10 @@ public class JsonUtil {
     }
 
     public static void main(String[] args) {
-        String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
+        //String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
+        //String jsonConf = JsonUtil.readJsonFile(path);
         JSONArray array = new JSONArray();
-        String jsonConf = JsonUtil.readJsonFile(path);
+        String jsonConf = JsonUtil.readFromResStream("conf/media-conf.json");
         if (!StringUtils.isEmpty(jsonConf)) {
             array = JSONArray.parseArray(jsonConf);
         }
@@ -71,6 +97,6 @@ public class JsonUtil {
         json.put("codes", codes);
         json.put("types", types);
         finalArray.add(json);
-        JsonUtil.writeJson(finalArray.toString(), path);
+        //JsonUtil.writeJson(finalArray.toString(), path);
     }
 }

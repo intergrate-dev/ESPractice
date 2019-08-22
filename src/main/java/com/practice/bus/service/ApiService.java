@@ -1,10 +1,9 @@
 package com.practice.bus.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.practice.bus.bean.MediaArticle;
-import com.practice.bus.bean.MediaSource;
+import com.practice.bus.bean.param.MediaStatsParam;
 import com.practice.common.SystemConstant;
 import com.practice.common.http.HttpAPIService;
 import com.practice.common.redis.RedisService;
@@ -15,11 +14,7 @@ import com.practice.util.CommonUtil;
 import com.practice.util.DateParseUtil;
 import com.practice.util.FastJsonConvertUtil;
 import com.practice.util.JsonUtil;
-import org.apache.commons.codec.digest.Md5Crypt;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.frameworkset.spi.async.annotation.Async;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,8 +125,9 @@ public class ApiService {
     private String getMediaCode(Boolean ignoreAcode, String mediaId) {
         String pscode = null;
         try {
-            String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
-            JSONArray array = JSONArray.parseArray(JsonUtil.readJsonFile(path));
+            /*String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
+            JSONArray array = JSONArray.parseArray(JsonUtil.readJsonFile(path));*/
+            JSONArray array = JSONArray.parseArray(JsonUtil.readFromResStream("conf/media-conf.json"));
             JSONObject json = null;
             for (Object o : array) {
                 JSONObject jb = (JSONObject) o;
@@ -173,12 +169,11 @@ public class ApiService {
             String key = SystemConstant.PREFIX_MEDIA_SOURCE.concat((String) queryMap.get("mediaId"));
             String result = (String) queryMap.get("result");
             JSONObject json = JSONObject.parseObject(result);
-            List<MediaSource> mediaSources = FastJsonConvertUtil.convertArrayToList(json.getString("sources"), MediaSource.class);
             List<String> ids_wechat = new ArrayList<>();
             List<String> ids_weibo = new ArrayList<>();
             List<String> ids_app = new ArrayList<>();
             if (!redisService.exists(key) || redisService.getList(key) == null) {
-                for (MediaSource ms : mediaSources) {
+                /*for (MediaSource ms : mediaSources) {
                     switch (ms.getType()) {
                         case SystemConstant.SOURCE_WECHAT:
                             ids_wechat.add(ms.getId());
@@ -192,7 +187,7 @@ public class ApiService {
                         default:
                             break;
                     }
-                }
+                }*/
                 JSONObject ids = new JSONObject();
                 this.setIdsByType(ids_wechat, ids, SystemConstant.SOURCE_WECHAT);
                 this.setIdsByType(ids_weibo, ids, SystemConstant.SOURCE_WEIBO);
@@ -212,8 +207,11 @@ public class ApiService {
         }
     }
 
-    public void fetchAndPutData(String mediaId, String codes, String names, String types) {
+    public void fetchAndPutData(MediaStatsParam param) {
         Map<String, String> map = new HashMap<>();
+        String types = param.getTypes();
+        String codes = param.getCodes();
+        String mediaId = param.getMediaId();
         map.put("sortField", "pubdate");
         map.put("sortType", "asc");
         map.put("dataType", types);
@@ -223,14 +221,14 @@ public class ApiService {
             return ;
         }
         switch (types) {
-            case SystemConstant.SOURCE_WECHAT:
-                map.put("wechatBiz", types);
+            case "wechat":
+                map.put("wechatBiz", codes);
                 break;
-            case SystemConstant.SOURCE_WEIBO:
-                map.put("weiboId", types);
+            case "weibo":
+                map.put("weiboId", codes);
                 break;
             default:
-                map.put("siteId", types);
+                map.put("siteId", codes);
                 break;
         }
         Integer pageNo = 1;
@@ -250,37 +248,35 @@ public class ApiService {
         }
     }
 
-    public Map<String, Object> queryMediaStats(String mediaId, String codes, String names, String types) throws IOException {
-        String key = SystemConstant.PREFIX_MEDIA_SOURCE.concat(mediaId);
+    public Map<String, Object> queryMediaStats(MediaStatsParam param) throws IOException {
+        String key = SystemConstant.PREFIX_MEDIA_SOURCE.concat(param.getMediaId());
         if (!redisService.exists(key) || redisService.get(key) == null) {
-            codes = URLDecoder.decode(codes, "UTF-8");
-            this.fetchAndPutData(mediaId, codes, names, types);
-            this.cacheMediaConf(mediaId, codes, types, key);
+            param.setCodes(URLDecoder.decode(param.getCodes(), "UTF-8"));
+            this.fetchAndPutData(param);
+            this.cacheMediaConf(param, key);
         }
-        return esService.querayMediaStats(mediaId, DateParseUtil.queryTodayWeekOfYear(new Date()));
+        return esService.querayMediaStats(param.getMediaId(), DateParseUtil.queryTodayWeekOfYear(new Date()));
     }
 
-    private void cacheMediaConf(String mediaId, String codes, String types, String key) {
-        redisService.set(key, codes, -1);
-        String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
+    private void cacheMediaConf(MediaStatsParam param, String key) {
+        redisService.set(key, param.getCodes(), -1);
+        /*String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
+        String jsonConf = JsonUtil.readJsonFile(path);*/
+        String jsonConf = JsonUtil.readFromResStream("conf/media-conf.json");
         JSONArray array = new JSONArray();
-        String jsonConf = JsonUtil.readJsonFile(path);
-        if (!StringUtils.isEmpty(jsonConf)) {
-            array = JSONArray.parseArray(jsonConf);
-        }
         JSONArray finalArray = new JSONArray();
-        finalArray.addAll(array);
+        String keyConf = SystemConstant.KEY_MEDIA_SOURCE_CONF;
+        if (redisService.exists(keyConf)) {
+            array = JSONArray.parseArray(redisService.get(keyConf));
+            finalArray.addAll(array);
+        }
         array.stream().forEach(a -> {
             JSONObject json = (JSONObject) a;
-            if (json.getString("mediaId").equals(mediaId)) {
+            if (json.getString("mediaId").equals(param.getMediaId())) {
                 finalArray.remove(json);
             }
         });
-        JSONObject json = new JSONObject();
-        json.put("mediaId", mediaId);
-        json.put("codes", codes);
-        json.put("types", types);
-        finalArray.add(json);
-        JsonUtil.writeJson(finalArray.toString(), path);
+        finalArray.add(FastJsonConvertUtil.convertObjectToJSON(param));
+        redisService.set(keyConf, finalArray.toString(), -1);
     }
 }

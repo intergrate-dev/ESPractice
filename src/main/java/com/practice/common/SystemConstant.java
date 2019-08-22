@@ -31,6 +31,7 @@ public class SystemConstant {
 	public static final String SOURCE_WECHAT = "wechat";
 	public static final String SOURCE_WEIBO = "weibo";
 	public static final String SOURCE_APP = "app";
+	public static final String KEY_MEDIA_SOURCE_CONF = "sitemonitor:media-source-conf";
 
 }
 

@@ -12,6 +12,7 @@ import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.List;
 
 @Service
@@ -21,10 +22,10 @@ public class TaskService {
     QuartzManager quartzManager;
 
     public void initSchedule() throws SchedulerException {
-        // 这里获取任务信息数据
-        String path = TaskService.class.getClassLoader().getResource("conf/task-conf.json").getPath();
-        List<TaskEntity> jobList = FastJsonConvertUtil.convertArrayToList(JsonUtil.readJsonFile(path), TaskEntity.class);
-        for (TaskEntity task : jobList) {
+        // 获取任务信息数据
+        List<TaskEntity> taskList = FastJsonConvertUtil.convertArrayToList(JsonUtil.readFromResStream("conf/task-conf.json"),
+                TaskEntity.class);
+        for (TaskEntity task : taskList) {
             if (JobStatusEnum.RUNNING.getCode().equals(task.getJobStatus())) {
                 quartzManager.addJob(task);
             }

@@ -1,8 +1,10 @@
 package com.practice.bus.controller;
 
+import com.practice.bus.bean.param.MediaStatsParam;
 import com.practice.bus.service.ApiService;
 import com.practice.common.ResponseObject;
 import com.practice.common.SystemConstant;
+import com.practice.common.annotation.ApiCheck;
 import com.practice.es.service.ESService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.*;
 
 
@@ -77,17 +80,15 @@ public class ApiController {
     @RequestMapping(value = "/queryMediaStats", method = RequestMethod.POST)
     @ResponseBody
     @CrossOrigin("*")
-    public ResponseObject queryMediaStats(@RequestParam(name = "mediaId", required = true) String mediaId,
-                                          @RequestParam(name = "codes", required = true) String codes,
-                                          @RequestParam(name = "names", required = false) String names,
-                                          @RequestParam(name = "types", required = true) String types) {
+    @ApiCheck
+    public ResponseObject queryMediaStats(@Valid MediaStatsParam param) {
 
         Map<String, Object> queryMap =  null;
         try {
             // TODO api token
-            queryMap = apiService.queryMediaStats(mediaId, codes, names, types);
+            queryMap = apiService.queryMediaStats(param);
         } catch (Exception e) {
-            logger.error("----------------------- 获取站点信息失败！， error: {} --------------------------", e.getMessage());
+            logger.error("----------------------- 获取信源互动统计数据失败！， error: {} --------------------------", e.getMessage());
             e.printStackTrace();
             return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, String.valueOf(queryMap.get("errMsg")));
         }

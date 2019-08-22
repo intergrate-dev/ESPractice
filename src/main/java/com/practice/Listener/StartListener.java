@@ -22,8 +22,8 @@ public class StartListener implements ApplicationListener<ApplicationReadyEvent>
             Thread.sleep(3000);
             long time_1 = System.currentTimeMillis();
             // TODO 初始化所有索引及配置
-            logger.info("=================== starter execute time: {}, take times: {} s ===============",
-                    DateParseUtil.dateToString(new Date()), (System.currentTimeMillis() - time_1)/1000);
+            logger.info("=================== StartListener init complete ..., take times: {} s ===============",
+                    DateParseUtil.dateToString(new Date()));
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -326,9 +326,9 @@ public class ESService {
             if (aggrs != null && aggrs.size() > 0) {
                 Aggregation aggregation = aggrs.get(0);
                 SiteMonitorEntity entity = map.get(key) == null ? map.get(keyCp) : map.get(key);
-                if (entity == null) {
+                /*if (entity == null) {
                     logger.info("-------------------------- entity empty key: {} -----------------------------", key);
-                }
+                }*/
                 if (map.containsKey(key) || map.containsKey(keyCp)) {
                     JSONObject json = new JSONObject();
                     json.put("id", entity.getId());
