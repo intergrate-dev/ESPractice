@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.*;
 
-
 @Controller
 @RequestMapping("/api")
 public class ApiController {
@@ -90,7 +89,7 @@ public class ApiController {
         } catch (Exception e) {
             logger.error("----------------------- 获取信源互动统计数据失败！， error: {} --------------------------", e.getMessage());
             e.printStackTrace();
-            return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, String.valueOf(queryMap.get("errMsg")));
+            return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, "查询互动统计数据失败！");
         }
         logger.info("------------------------ queryMediaStats, return datas  --------------------");
         return ResponseObject.newSuccessResponseObject(queryMap, SystemConstant.REQ_SUCCESS);
