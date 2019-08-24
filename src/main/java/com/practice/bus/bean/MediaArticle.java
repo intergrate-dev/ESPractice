@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class MediaArticle implements Serializable {
+    public static final String SOURCE_WECHAT = "wechat";
+    public static final String SOURCE_WEIBO = "weibo";
+    public static final String SOURCE_APP = "app";
+
     private String id;
     /**
      * 公众号、微博名称

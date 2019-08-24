@@ -403,12 +403,7 @@ public class ESService {
         BoolQueryBuilder boolBuilder = QueryBuilders.boolQuery();
         sourceBuilder.query(boolBuilder).aggregation(AggregationBuilders.terms("agg_status").field("status"));
 
-        SearchRequest searchRequest = new SearchRequest(INDEX_SITE);
-        searchRequest.source(sourceBuilder);
-        SearchResponse response = null;
-        response = client.search(searchRequest, RequestOptions.DEFAULT);
-
-        List<Aggregation> aggregations = response.getAggregations().asList();
+        List<Aggregation> aggregations = getAggregations(sourceBuilder, INDEX_SITE);
         if (aggregations.size() == 0) {
             return null;
         }
@@ -451,12 +446,7 @@ public class ESService {
                         )
                 ).sort("pubdate", SortOrder.ASC);
 
-        SearchRequest searchRequest = new SearchRequest(INDEX_ARTICLE);
-        searchRequest.source(sourceBuilder);
-        SearchResponse response = null;
-        response = client.search(searchRequest, RequestOptions.DEFAULT);
-
-        List<Aggregation> aggregations = response.getAggregations().asList();
+        List<Aggregation> aggregations = this.getAggregations(sourceBuilder, INDEX_ARTICLE);
         List<? extends Terms.Bucket> buckets = ((ParsedStringTerms) aggregations.get(0)).getBuckets();
         List<MediaArtiStatsVo> masvList = new ArrayList<>();
         buckets.stream().forEach(b -> {
@@ -504,6 +494,15 @@ public class ESService {
         resMap.put("rows", masvList);
         //logger.info("------------------------- es esearch response: {} ------------------------------", response.toString());
         return resMap;
+    }
+
+    private List<Aggregation> getAggregations(SearchSourceBuilder sourceBuilder, String indexArticle) throws IOException {
+        SearchRequest searchRequest = new SearchRequest(indexArticle);
+        searchRequest.source(sourceBuilder);
+        SearchResponse response = null;
+        response = client.search(searchRequest, RequestOptions.DEFAULT);
+
+        return response.getAggregations().asList();
     }
 
     private String filtPostfix(String source) {

@@ -95,9 +95,6 @@ public class DocController {
     @RequestMapping("/mappingSiteInfo")
     @ResponseBody
     public String mappingSiteInfo() {
-
-        /*String path = DocController.class.getClassLoader().getResource("esconf/mapping-siteMonitor.json").getPath();
-        String s = JsonUtil.readJsonFile(path);*/
         JSONObject json = JSON.parseObject(JsonUtil.readFromResStream("esconf/mapping-siteMonitor.json"));
         esService.mappingSiteInfo(json);
         return "mappingSiteInfo success";

@@ -34,16 +34,12 @@ public class MediaArticleJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecContext) throws JobExecutionException {
         logger.info("----------------------- 定时任务 开始执行, 时间： {}", DateParseUtil.dateTimeToString(new Date()));
-        //String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
-        //JSONArray array = JSONArray.parseArray(JsonUtil.readJsonFile(path));
-        // JSONArray array = JSONArray.parseArray(JsonUtil.readFromResStream("conf/media-conf.json"));
         JSONArray array = JSONArray.parseArray(redisService.get(SystemConstant.KEY_MEDIA_SOURCE_CONF));
         if (array == null || array.size() == 0) {
             return;
         }
         array.stream().forEach(a -> {
             JSONObject json = (JSONObject) a;
-            //FastJsonConvertUtil.convertJSONToObject(json.toString(), MediaStatsParam.class);
             apiService.fetchAndPutData(FastJsonConvertUtil.convertJSONToObject(json.toString(), MediaStatsParam.class));
         });
     }

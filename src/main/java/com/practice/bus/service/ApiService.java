@@ -125,8 +125,6 @@ public class ApiService {
     private String getMediaCode(Boolean ignoreAcode, String mediaId) {
         String pscode = null;
         try {
-            /*String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
-            JSONArray array = JSONArray.parseArray(JsonUtil.readJsonFile(path));*/
             JSONArray array = JSONArray.parseArray(JsonUtil.readFromResStream("conf/media-conf.json"));
             JSONObject json = null;
             for (Object o : array) {
@@ -189,9 +187,9 @@ public class ApiService {
                     }
                 }*/
                 JSONObject ids = new JSONObject();
-                this.setIdsByType(ids_wechat, ids, SystemConstant.SOURCE_WECHAT);
-                this.setIdsByType(ids_weibo, ids, SystemConstant.SOURCE_WEIBO);
-                this.setIdsByType(ids_app, ids, SystemConstant.SOURCE_APP);
+                this.setIdsByType(ids_wechat, ids, MediaArticle.SOURCE_WECHAT);
+                this.setIdsByType(ids_weibo, ids, MediaArticle.SOURCE_WEIBO);
+                this.setIdsByType(ids_app, ids, MediaArticle.SOURCE_APP);
                 redisService.set(key, ids.toString(), 24 * 3600);
             }
         } catch (Exception e) {
@@ -221,10 +219,10 @@ public class ApiService {
             return ;
         }
         switch (types) {
-            case "wechat":
+            case MediaArticle.SOURCE_WECHAT:
                 map.put("wechatBiz", codes);
                 break;
-            case "weibo":
+            case MediaArticle.SOURCE_WEIBO:
                 map.put("weiboId", codes);
                 break;
             default:
@@ -260,9 +258,6 @@ public class ApiService {
 
     private void cacheMediaConf(MediaStatsParam param, String key) {
         redisService.set(key, param.getCodes(), -1);
-        /*String path = ApiService.class.getClassLoader().getResource("conf/media-conf.json").getPath();
-        String jsonConf = JsonUtil.readJsonFile(path);*/
-        String jsonConf = JsonUtil.readFromResStream("conf/media-conf.json");
         JSONArray array = new JSONArray();
         JSONArray finalArray = new JSONArray();
         String keyConf = SystemConstant.KEY_MEDIA_SOURCE_CONF;

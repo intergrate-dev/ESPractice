@@ -71,25 +71,6 @@ public class FastJsonConvertUtil<T> {
         return JSONObject.parseObject(JSONObject.toJSONString(source));
     }
     public static void main(String[] args) {
-        /*String path = FastJsonConvertUtil.class.getClassLoader().getResource("mapping-siteMonitor.json").getPath();
-        String s = JsonUtil.readJsonFile(path);
-        JSONObject json = JSON.parseObject(s);
-        Map<String, Object> resMap = json2Map(json.toString());
-        logger.info("resMap: {}", resMap);*/
-
-        /*Double ceil = Math.ceil(3 * 1.0 / 10);
-        long round = Math.round(ceil);
-        logger.info("ceil: {}", round);*/
-
-        /*Map<String, Object> map = new HashMap<>();
-        map.put("id", 45454);
-        map.put("name", "etirjtiert");
-        List<MediaSource> list = new ArrayList<>();
-        list.add(new MediaSource("1","code1","type1", "name1"));
-        list.add(new MediaSource("2","code2","type2", "name2"));
-        map.put("list", list);
-        JSONObject json = map2Json(map);
-        logger.info("------------------------ main, jsonStr: {} --------------------", json.toString());*/
         logger.info("------------------------ main, week of year: {} --------------------", DateParseUtil.queryTodayWeekOfYear(new Date()));
 
     }
