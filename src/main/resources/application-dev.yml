@@ -1,14 +1,14 @@
 server:
-  port:  8080
+  port:  8086
 
 # ES & rabbitmq
 # virtual-host: rabbit_vhost
 spring:
   data:
     elasticsearch:
-      cluster-name: 172.19.207.201
+      cluster-name: 127.0.0.1
   rabbitmq:
-    host: 172.19.207.201
+    host: 127.0.0.1
     port: 5672
     username: admin
     password: admin

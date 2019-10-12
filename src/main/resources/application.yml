@@ -29,3 +29,15 @@ http:
   #提交请求前测试连接是否可用0
   staleConnectionCheckEnabled: true
 
+spring:
+  application:
+    name: site-monitor
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info
+  metrics:
+    tags:
+      application: ${spring.application.name}

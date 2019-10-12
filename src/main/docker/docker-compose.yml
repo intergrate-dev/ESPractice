@@ -1,103 +1,16 @@
-version: "2"
+version: '3'
 services:
-  elasticsearch:
-    image: elasticsearch:7.2.0
-    container_name: elasticsearch
-    restart: always
-    environment:
-      - "cluster.name=elastic-cluster"
-      - "node.name=node_master_9200"
-      - "node.master=true"
-      - "node.data=true"
-      - "bootstrap.memory_lock=true"
-      - "http.cors.enabled=true"
-      - "http.cors.allow-origin=*"
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumesx:
-      - ./esdata1:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
-
-  elasticsearch2:
-    image: elasticsearch:7.2.0
-    container_name: elasticsearch2
-    restart: always
-    environment:
-      - "cluster.name=elastic-cluster"
-      - "node.name=node_slave_9201"
-      - "node.master=false"
-      - "node.data=true"
-      - "bootstrap.memory_lock=true"
-      - "http.cors.enabled=true"
-      - "http.cors.allow-origin=*"
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-      - "discovery.zen.ping.unicast.hosts=elasticsearch"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - ./esdata2:/usr/share/elasticsearch/data
-    ports:
-      - "9201:9200"
-    depends_on:
-      - elasticsearch
-
-  kibana:
-    image: kibana:7.2.0
-    container_name: kibana
-    environment:
-      - "SERVER_NAME=kibana"
-      - "ELASTICSEARCH_URL=http://elasticsearch:9200"
-      - "XPACK_MONITORING_ENABLED=true"
-    ports:
-      - "5601:5601"
-    depends_on:
-      - elasticsearch
-    external_links:
-      - elasticsearch
-
-volumes:
-  esdata1:
-    driver: local
-  esdata2:
-    driver: local
-
-
---------------------------------------------------------------------------
-
-version: "2"
-services:
-  elasticsearch:
-    image: elasticsearch:7.2.0
-    container_name: elasticsearch
+  site-monitor-service:
+    image: "developer23/site-monitor"
     ports:
-      - "9200:9200"
+      - "8086:8086"
+    container_name: site-monitor
     environment:
-      - "discovery.type=single-node"
-      - "cluster.name=docker-cluster"
-      - "bootstrap.memory_lock=true"
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    restart: always
-    volumes:
-      - ./data:/usr/share/elasticsearch/data
-
-  kibana:
-    image: kibana:7.2.0
-    container_name: kibana
-    links:
-      - "elasticsearch"
+      - "SPRING_PROFILES_ACTIVE=prod"
+  prometheus:
+    image: "prom/prometheus"
     ports:
-      - "5601:5601"
-    restart: always
-
-
-
+      - "9090:9090"
+    volumes:
+      - ${PWD}/prom.yml:/etc/prometheus/prometheus.yml
+    container_name: prometheus

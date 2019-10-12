@@ -381,4 +381,96 @@ term 精确匹配 不分词
 
 
 
+### Prometheus+Grafana
+reference: https://www.cnblogs.com/niechen/p/10150004.html
+
+mvn clean package docker:build
+
+
+#### prepare
+pom, application.properties, *Application.java(embed grafana), docker-compose.yml+prom.yml(register).
+At last, run app and validate url "http://localhost:8086/actuator/prometheus"
+
+#### prometheus
+docker-compose up -d 
+http://192.168.122.1:9090/targets
+
+#### grafana
+in browser, add datasource, and import jvm-micrometer
+
+https://grafana.com/dashboards/4701
+(https://grafana.com/grafana/dashboards)
+https://grafana.com/docs/
+https://grafana.com/grafana/plugins
+
+
+
+#### stop service
+docker-compose stop site-monitor-service
+
+
+### logstash
+```text
+input {
+ 
+        file {
+                start_position => end ### 读文件的位子
+                path => "/root/projects/fp-api/log/fp-api.log"
+                type => "type1" ### 用去输出到es时判断存入哪个索引
+                codec => multiline {
+                        negate => true ### 是否匹配到
+                        pattern => "(?<datetime>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}.\d{3})  INFO %{NUMBER:thread} --- %{SYSLOG5424SD:task} %{JAVACLASS}\s*: %{SYSLOG5424SD:module}\s*%{GREEDYDATA:msg}" ### 匹配的正则
+                        what => "previous" ###将没匹配到的合并到上一条，可选previous或next, previous是合并到匹配的上一行末尾
+                        max_lines => 1000 ### 最大允许的行
+                        max_bytes => "10MiB" ### 允许的大小
+                        auto_flush_interval => 30 ### 如果在规定时候内没有新的日志事件就不等待后面的日志事件
+               }
+        }
+ 
+ 
+        file {
+​                start_position => end
+​                path => "/root/projects/fp-acq/log/fp-acq.log"
+​                type => "type2"
+​                codec => multiline {
+​                        pattern => "(?<datetime>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}.\d{3})  INFO %{NUMBER:thread} --- %{SYSLOG5424SD:task} %{JAVACLASS}\s*: %{SYSLOG5424SD:module}\s*%{GREEDYDATA:msg}"
+​                        negate => true
+​                        what => "previous"
+​                }
+​        }
+ 
+}
+ 
+ 
+filter{
+        grok{
+                match => {
+                        "message" => "(?<datetime>\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}.\d{3})  INFO %{NUMBER:thread} --- %{SYSLOG5424SD:task} %{JAVACLASS:javaclass}\s*: %{SYSLOG5424SD:module}\s*%{GREEDYDATA:msg}"
+                 }
+        } ### 通过grok匹配内容并将
+     
+        date{
+                match => ["datetime","yyyy-MM-dd HH:mm:ss.SSS","yyyy-MM-dd HH:mm:ss.SSSZ"]
+                target => "@timestamp"
+        } ### 处理时间
+}
+ 
+output {
+ 
+    if [type] == "type1" {
+        elasticsearch {
+​        hosts => "192.168.1.158"
+​        index => "fp_log_type1"
+          }
+   }
+ 
+    if [type] == "type2" {
+​        elasticsearch {
+​        hosts => "192.168.1.158"
+​        index => "fp_log_typr2"
+          }
+ 
+    }
+}
+```
 
