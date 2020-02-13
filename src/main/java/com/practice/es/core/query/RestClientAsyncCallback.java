@@ -1,4 +1,4 @@
-package com.practice.es.core;
+package com.practice.es.core.query;
 
 import org.elasticsearch.client.RestHighLevelClient;
 

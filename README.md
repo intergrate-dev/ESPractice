@@ -27,6 +27,9 @@
 可以参看[这里](https://www.jianshu.com/p/198d4c3fbea5)，对整个ES的开发流程有简单说明
 
 
+### 中文社区文档
+https://www.elastic.co/guide/cn/elasticsearch/guide/current/index.html
+
 
 # es-client-demo
 spring boot2 整合elasticsearch 7.2 
@@ -44,6 +47,9 @@ RestHighLevelClient 模糊搜索
 https://www.cnblogs.com/wangrudong003/p/10959525.html
 https://blog.csdn.net/paditang/article/details/78802799
 https://gitee.com/wzlee/ESClientRHL
+
+https://www.elastic.co/guide/cn/elasticsearch/guide/current/_wildcard_and_regexp_queries.html
+
 
 
 

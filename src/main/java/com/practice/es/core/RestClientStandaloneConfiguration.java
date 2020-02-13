@@ -15,7 +15,6 @@ public class RestClientStandaloneConfiguration extends RestClientConfiguration {
 
     @Override
     HttpHost[] getHttpHosts() {
-        //HttpHost[] hosts = {new HttpHost("172.19.207.201", 9200)};
         HttpHost[] hosts = {new HttpHost(this.host, this.port)};
         return hosts;
     }

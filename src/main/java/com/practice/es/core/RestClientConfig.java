@@ -1,5 +1,8 @@
 package com.practice.es.core;
 
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +11,19 @@ import org.springframework.context.annotation.Configuration;
 public class RestClientConfig {
     @Value("${spring.data.elasticsearch.cluster-name}")
     private String esIP;
+
+    /*public HttpHost[] getHttpHosts() {
+        HttpHost[] hosts = {new HttpHost(esIP, 9200)};
+        return hosts;
+    }*/
+
+    /*@Bean
+    public RestHighLevelClient client() {
+        RestHighLevelClient client = new RestHighLevelClient(
+                //这里如果要用client去访问其他节点，就添加进去
+                RestClient.builder(new HttpHost(esIP, 9200, "http")));
+        return client;
+    }*/
 
     /**
      * 配置RestClient连接池，基于commons-pool2

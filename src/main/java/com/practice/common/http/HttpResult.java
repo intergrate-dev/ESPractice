@@ -2,7 +2,7 @@ package com.practice.common.http;
 
 public class HttpResult {
 
-    // 响应码
+    /*// 响应码
     private Integer code;
 
     // 响应体
@@ -33,5 +33,5 @@ public class HttpResult {
     public void setBody(String body) {
         this.body = body;
     }
-
+*/
 }

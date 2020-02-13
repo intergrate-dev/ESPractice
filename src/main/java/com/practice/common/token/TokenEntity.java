@@ -1,7 +1,7 @@
 package com.practice.common.token;
 
 public class TokenEntity {
-	private int TK_ID;
+	/*private int TK_ID;
 	private String TK_TOKEN;
 	private String TK_EXPIRETIME;
 	private String TK_SOURE;
@@ -34,6 +34,6 @@ public class TokenEntity {
 		return "TokenEntity [TK_ID=" + TK_ID + ", TK_TOKEN=" + TK_TOKEN
 				+ ", TK_EXPIRETIME=" + TK_EXPIRETIME + ", TK_SOURE=" + TK_SOURE
 				+ "]";
-	}
+	}*/
 	
 }

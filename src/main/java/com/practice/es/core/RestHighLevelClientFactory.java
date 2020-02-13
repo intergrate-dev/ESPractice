@@ -23,7 +23,6 @@ public class RestHighLevelClientFactory implements PooledObjectFactory<RestHighL
 
     public RestHighLevelClientFactory(RestClientConfiguration configuration, Map<String, String> defaultHeaders) {
         this.configuration = configuration;
-        //this.builder = RestClient.builder(configuration.getHttpHosts());
         this.builder = RestClient.builder(configuration.getHttpHosts());
         customizeRequestConfig();
         customizeHttpClient();

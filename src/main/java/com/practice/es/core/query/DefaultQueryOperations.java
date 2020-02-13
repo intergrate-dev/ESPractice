@@ -1,5 +1,6 @@
-package com.practice.es.core;
+package com.practice.es.core.query;
 
+import com.practice.es.core.RestClientTemplate;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-class DefaultQueryOperations implements QueryOperations {
+public class DefaultQueryOperations implements QueryOperations {
 
     private RestClientTemplate template;
     private SearchSourceBuilder builder;
@@ -26,7 +27,7 @@ class DefaultQueryOperations implements QueryOperations {
         this.builder = builder;
     }
 
-    DefaultQueryOperations setSearchSourceBuilder(SearchSourceBuilder builder){
+    public DefaultQueryOperations setSearchSourceBuilder(SearchSourceBuilder builder){
         this.builder = builder;
         return this;
     }

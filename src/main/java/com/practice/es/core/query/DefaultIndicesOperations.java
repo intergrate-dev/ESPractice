@@ -1,5 +1,6 @@
-package com.practice.es.core;
+package com.practice.es.core.query;
 
+import com.practice.es.core.RestClientTemplate;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
@@ -7,7 +8,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.indices.CreateIndexRequest;
 import org.elasticsearch.client.indices.CreateIndexResponse;
 
-class DefaultIndicesOperations implements IndicesOperations{
+public class DefaultIndicesOperations implements IndicesOperations{
 
     private RestClientTemplate template;
 

@@ -1,4 +1,4 @@
-package com.practice.es.core;
+package com.practice.es.core.query;
 
 public class RestClientException extends RuntimeException {
 

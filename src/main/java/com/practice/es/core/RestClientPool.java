@@ -2,6 +2,7 @@ package com.practice.es.core;
 
 
 
+import com.practice.es.core.query.RestClientException;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;

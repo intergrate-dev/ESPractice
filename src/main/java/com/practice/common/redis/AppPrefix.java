@@ -24,10 +24,10 @@ public class AppPrefix implements KeyPrefix{
         return appPrefix;
     }
 
-    /*public AppPrefix(int expireSeconds, String prefix) {
+    public AppPrefix(int expireSeconds, String prefix) {
         this.expireSeconds = expireSeconds;
         this.prefix = prefix;
-    }*/
+    }
 
     @Override
     public int expireSeconds() {

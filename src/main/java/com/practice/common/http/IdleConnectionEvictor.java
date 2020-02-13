@@ -4,10 +4,10 @@ import org.apache.http.conn.HttpClientConnectionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class IdleConnectionEvictor extends Thread {
 
-    @Autowired
+    /*@Autowired
     private HttpClientConnectionManager connMgr;
 
     private volatile boolean shutdown;
@@ -38,5 +38,5 @@ public class IdleConnectionEvictor extends Thread {
         synchronized (this) {
             notifyAll();
         }
-    }
+    }*/
 }

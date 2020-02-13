@@ -1,5 +1,6 @@
 package com.practice.es.core;
 
+import com.practice.es.core.query.*;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
@@ -29,6 +30,10 @@ public class RestClientTemplate extends RestClientAccessor implements DocumentOp
 
     public RestClientTemplate(ElasticsearchClientFactory restClientFactory) {
         setConnectionFactory(restClientFactory);
+    }
+
+    public RestHighLevelClient getClient(){
+        return getRestClientFactory().getResource();
     }
 
     @Override

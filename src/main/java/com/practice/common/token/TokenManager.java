@@ -54,7 +54,7 @@ public class TokenManager {
         return access_token;
     }
 
-    public TokenEntity getActToken() {
+    /*public TokenEntity getActToken() {
         return null;
-    }
+    }*/
 }

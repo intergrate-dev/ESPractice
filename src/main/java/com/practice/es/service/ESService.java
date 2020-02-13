@@ -75,8 +75,8 @@ public class ESService {
     /*@Autowired
     TransportClient transportClient;*/
 
-    @Autowired
-    private RestHighLevelClient client;
+    /*@Autowired
+    private RestHighLevelClient client;*/
 
     @Autowired
     private RestClientTemplate template;
@@ -112,7 +112,7 @@ public class ESService {
             logger.info(o.toString());
             indexRequest.source(o.toString(), XContentType.JSON);
             //同步执行
-            IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
+            IndexResponse indexResponse = template.getClient().index(indexRequest, RequestOptions.DEFAULT);
 
         } catch (Exception e) {
             logger.error("ES添加文档失败", e);
@@ -140,7 +140,7 @@ public class ESService {
 
             //可以执行很多可选参数....,这里是个简单示例,就不把官方文档的所有的可选参数都添加上了
             //同步执行
-            UpdateResponse updateResponse = client.update(request, RequestOptions.DEFAULT);
+            UpdateResponse updateResponse = template.getClient().update(request, RequestOptions.DEFAULT);
             String index = updateResponse.getIndex();
             String id = updateResponse.getId();
             long version = updateResponse.getVersion();
@@ -198,7 +198,7 @@ public class ESService {
             }
         };
         try {
-            client.deleteAsync(request, RequestOptions.DEFAULT, listener);
+            template.getClient().deleteAsync(request, RequestOptions.DEFAULT, listener);
             return 1;
         } catch (Exception e) {
             e.printStackTrace();
@@ -226,7 +226,7 @@ public class ESService {
         searchRequest.searchType(TYPE);
         searchRequest.source(sourceBuilder);
         try {
-            SearchResponse response = client.search(searchRequest, null);
+            SearchResponse response = template.getClient().search(searchRequest, null);
             logger.info("---------------------------- es esearch response: {} ---------------------------", response.toString());
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -249,7 +249,7 @@ public class ESService {
         IndexRequest indexRequest = new IndexRequest(index).id(rId);
         indexRequest.source(JSON.toJSON(entity).toString(), XContentType.JSON);
         try {
-            IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
+            IndexResponse indexResponse = template.getClient().index(indexRequest, RequestOptions.DEFAULT);
             logger.info("------------------ createSiteInfo, rId: {}, indexResponse status: {}, source: {} ----------------", rId, indexResponse.status(), indexRequest.source());
         } catch (IOException e) {
             logger.error("================= createSiteInfo error, id: {}, error: {} =============", indexRequest.id(), e.getMessage());
@@ -267,7 +267,7 @@ public class ESService {
             Script script = new Script("ctx._source.status = ".concat(siteMonitor.getStatus()));
             UpdateByQueryRequest request = new UpdateByQueryRequest(INDEX_SITE).setQuery(boolBuilder).setScript(script);
             request.setConflicts("proceed");
-            BulkByScrollResponse response = client.updateByQuery(request, RequestOptions.DEFAULT);
+            BulkByScrollResponse response = template.getClient().updateByQuery(request, RequestOptions.DEFAULT);
             logger.info("------------------------------ modifySiteInfo, update item: {}, source: {} ------------------------", response.getStatus().getTotal(), source);
         } catch (IOException e) {
             logger.error("================= modifySiteInfo error, id: {}, error: {} =============", siteMonitor.getId(), e.getMessage());
@@ -290,16 +290,14 @@ public class ESService {
         sourceBuilder.query(boolBuilder)
                 .aggregation(AggregationBuilders.terms("aggreofid").field("id").size(offSize)
                                 .subAggregation(AggregationBuilders.stats("aggreofstatus").field("status"))
-                        //.subAggregation(AggregationBuilders.cardinality("statusaggre").field("status"))
                 )
-                //.aggregation(AggregationBuilders.terms("aggreofstatus").field("status"))
                 //.size(100)
                 .sort("status", SortOrder.ASC);
 
         SearchRequest searchRequest = new SearchRequest(INDEX_SITE);
         searchRequest.source(sourceBuilder);
         SearchResponse response = null;
-        response = client.search(searchRequest, RequestOptions.DEFAULT);
+        response = template.getClient().search(searchRequest, RequestOptions.DEFAULT);
         SearchHits searchHits = response.getHits();
         SearchHit[] hits = searchHits.getHits();
         Map<String, SiteMonitorEntity> map = new HashMap<>();
@@ -391,7 +389,7 @@ public class ESService {
             }
         };
         try {
-            client.deleteAsync(request, RequestOptions.DEFAULT, listener);
+            template.getClient().deleteAsync(request, RequestOptions.DEFAULT, listener);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -500,7 +498,7 @@ public class ESService {
         SearchRequest searchRequest = new SearchRequest(indexArticle);
         searchRequest.source(sourceBuilder);
         SearchResponse response = null;
-        response = client.search(searchRequest, RequestOptions.DEFAULT);
+        response = template.getClient().search(searchRequest, RequestOptions.DEFAULT);
 
         return response.getAggregations().asList();
     }
@@ -525,7 +523,7 @@ public class ESService {
         }
         BulkResponse bulk = null;
         try {
-            bulk = client.bulk(request, RequestOptions.DEFAULT);
+            bulk = template.getClient().bulk(request, RequestOptions.DEFAULT);
             logger.info("------------------------ bulkPutIndex, status: {} --------------------", bulk.status());
         } catch (IOException e) {
             e.printStackTrace();
