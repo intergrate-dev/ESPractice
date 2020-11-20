@@ -1,6 +1,6 @@
 package com.practice.common;
 
-public class SystemConstant {
+public class Constant {
 
 	public static final int RESCODE_REFTOKEN_MSG = 1006;		//刷新TOKEN(有返回数据)
 	public static final int RESCODE_REFTOKEN = 1007;			//刷新TOKEN
@@ -30,5 +30,9 @@ public class SystemConstant {
 	public static final String PREFIX_MEDIA_SOURCE = "sitemonitor:media-source:";
 	public static final String KEY_MEDIA_SOURCE_CONF = "sitemonitor:media-source-conf";
 
+    public static final Integer THREAD_NUM = 10;
+	public static final Object ZKSERVER = null;
+	public static final Object CLUSTER = null;
+	public static final String INDEX = null;
 }
 

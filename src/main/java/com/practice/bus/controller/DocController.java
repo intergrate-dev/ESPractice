@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.practice.bus.bean.SiteMonitorEntity;
 import com.practice.common.ResponseObject;
-import com.practice.common.SystemConstant;
+import com.practice.common.Constant;
 import com.practice.es.service.ESService;
 import com.practice.util.JsonUtil;
 import org.slf4j.Logger;
@@ -149,11 +149,11 @@ public class DocController {
         } catch (Exception e) {
             logger.error("----------------------- 获取站点信息失败！， error: {} --------------------------", e.getMessage());
             e.printStackTrace();
-            return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, "获取站点更新信息失败！");
+            return ResponseObject.newErrorResponseObject(Constant.REQ_ILLEGAL_CODE, "获取站点更新信息失败！");
         }
         queryMap.put("pageNo", pageNo);
         queryMap.put("limit", limit);
-        return ResponseObject.newSuccessResponseObject(queryMap, SystemConstant.REQ_SUCCESS);
+        return ResponseObject.newSuccessResponseObject(queryMap, Constant.REQ_SUCCESS);
     }
 
     /**

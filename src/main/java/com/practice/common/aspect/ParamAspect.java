@@ -1,7 +1,7 @@
 package com.practice.common.aspect;
 
 import com.practice.common.ResponseObject;
-import com.practice.common.SystemConstant;
+import com.practice.common.Constant;
 import com.practice.common.redis.RedisService;
 import com.practice.util.DateParseUtil;
 import com.practice.util.RegxUtil;
@@ -46,7 +46,7 @@ public class ParamAspect {
             if (arg instanceof BindingResult) {
                 BindingResult validResult = (BindingResult) arg;
                 if (validResult.hasErrors()) {
-                    return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, validErrorMsg(validResult));
+                    return ResponseObject.newErrorResponseObject(Constant.REQ_ILLEGAL_CODE, validErrorMsg(validResult));
                 }
             }
         }

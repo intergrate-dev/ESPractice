@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.practice.bus.bean.param.MediaStatsParam;
 import com.practice.bus.service.ApiService;
-import com.practice.common.SystemConstant;
+import com.practice.common.Constant;
 import com.practice.common.redis.RedisService;
 import com.practice.util.DateParseUtil;
 import com.practice.util.FastJsonConvertUtil;
@@ -34,7 +34,7 @@ public class MediaArticleJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecContext) throws JobExecutionException {
         logger.info("----------------------- 定时任务 开始执行, 时间： {}", DateParseUtil.dateTimeToString(new Date()));
-        JSONArray array = JSONArray.parseArray(redisService.get(SystemConstant.KEY_MEDIA_SOURCE_CONF));
+        JSONArray array = JSONArray.parseArray(redisService.get(Constant.KEY_MEDIA_SOURCE_CONF));
         if (array == null || array.size() == 0) {
             return;
         }

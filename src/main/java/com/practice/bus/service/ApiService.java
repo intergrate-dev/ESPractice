@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.practice.bus.bean.MediaArticle;
 import com.practice.bus.bean.param.MediaStatsParam;
-import com.practice.common.SystemConstant;
+import com.practice.common.Constant;
 import com.practice.common.http.HttpAPIService;
 import com.practice.common.redis.RedisService;
 import com.practice.common.token.TokenManager;
@@ -62,7 +62,7 @@ public class ApiService {
     }
 
     public Map<String, Object> getMediaArticles(Integer pageNo, Integer limit, List<String> types, String mediaId) {
-        String key = SystemConstant.PREFIX_MEDIA_SOURCE.concat(mediaId);
+        String key = Constant.PREFIX_MEDIA_SOURCE.concat(mediaId);
         JSONObject ids = JSONObject.parseObject(redisService.get(key));
         Map<String, String> map = new HashMap<>();
         map.put("sortField", "pubdate");
@@ -72,13 +72,13 @@ public class ApiService {
         types.stream().forEach(type -> {
             if (ids.containsKey(type) && !StringUtils.isEmpty(ids.getString(type))) {
                 switch (type) {
-                    case SystemConstant.SOURCE_WECHAT:
+                    case Constant.SOURCE_WECHAT:
                         map.put("wechatBiz", ids.getString(type));
                         break;
-                    case SystemConstant.SOURCE_WEIBO:
+                    case Constant.SOURCE_WEIBO:
                         map.put("weiboId", ids.getString(type));
                         break;
-                    case SystemConstant.SOURCE_APP:
+                    case Constant.SOURCE_APP:
                         break;
                     default:
                         break;
@@ -164,7 +164,7 @@ public class ApiService {
 
     public void cacheMediaSource(Map<String, Object> queryMap) {
         try {
-            String key = SystemConstant.PREFIX_MEDIA_SOURCE.concat((String) queryMap.get("mediaId"));
+            String key = Constant.PREFIX_MEDIA_SOURCE.concat((String) queryMap.get("mediaId"));
             String result = (String) queryMap.get("result");
             JSONObject json = JSONObject.parseObject(result);
             List<String> ids_wechat = new ArrayList<>();
@@ -173,13 +173,13 @@ public class ApiService {
             if (!redisService.exists(key) || redisService.getList(key) == null) {
                 /*for (MediaSource ms : mediaSources) {
                     switch (ms.getType()) {
-                        case SystemConstant.SOURCE_WECHAT:
+                        case Constant.SOURCE_WECHAT:
                             ids_wechat.add(ms.getId());
                             break;
-                        case SystemConstant.SOURCE_WEIBO:
+                        case Constant.SOURCE_WEIBO:
                             ids_weibo.add(ms.getId());
                             break;
-                        case SystemConstant.SOURCE_APP:
+                        case Constant.SOURCE_APP:
                             ids_app.add(ms.getId());
                             break;
                         default:
@@ -247,7 +247,7 @@ public class ApiService {
     }
 
     public Map<String, Object> queryMediaStats(MediaStatsParam param) throws IOException {
-        String key = SystemConstant.PREFIX_MEDIA_SOURCE.concat(param.getMediaId());
+        String key = Constant.PREFIX_MEDIA_SOURCE.concat(param.getMediaId());
         if (!redisService.exists(key) || redisService.get(key) == null) {
             param.setCodes(URLDecoder.decode(param.getCodes(), "UTF-8"));
             this.fetchAndPutData(param);
@@ -260,7 +260,7 @@ public class ApiService {
         redisService.set(key, param.getCodes(), -1);
         JSONArray array = new JSONArray();
         JSONArray finalArray = new JSONArray();
-        String keyConf = SystemConstant.KEY_MEDIA_SOURCE_CONF;
+        String keyConf = Constant.KEY_MEDIA_SOURCE_CONF;
         if (redisService.exists(keyConf)) {
             array = JSONArray.parseArray(redisService.get(keyConf));
             finalArray.addAll(array);

@@ -1,12 +1,12 @@
 package com.practice.bus.bean.param;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 
 public class MediaStatsParam extends CommonParam {
 
     @NotBlank
     private String codes;
+
     @NotBlank
     private String types;
 

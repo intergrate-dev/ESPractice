@@ -3,7 +3,7 @@ package com.practice.bus.controller;
 import com.practice.bus.bean.param.MediaStatsParam;
 import com.practice.bus.service.ApiService;
 import com.practice.common.ResponseObject;
-import com.practice.common.SystemConstant;
+import com.practice.common.Constant;
 import com.practice.common.annotation.ApiCheck;
 import com.practice.es.service.ESService;
 import org.slf4j.Logger;
@@ -45,9 +45,9 @@ public class ApiController {
         } catch (Exception e) {
             logger.error("----------------------- 获取站点信息失败！， error: {} --------------------------", e.getMessage());
             e.printStackTrace();
-            return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, "获取站点更新信息失败！");
+            return ResponseObject.newErrorResponseObject(Constant.REQ_ILLEGAL_CODE, "获取站点更新信息失败！");
         }
-        return ResponseObject.newSuccessResponseObject(queryMap, SystemConstant.REQ_SUCCESS);
+        return ResponseObject.newSuccessResponseObject(queryMap, Constant.REQ_SUCCESS);
     }
 
     /**
@@ -66,9 +66,9 @@ public class ApiController {
         } catch (Exception e) {
             logger.error("----------------------- 获取站点信息失败！， error: {} --------------------------", e.getMessage());
             e.printStackTrace();
-            return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, "获取站点更新信息失败！");
+            return ResponseObject.newErrorResponseObject(Constant.REQ_ILLEGAL_CODE, "获取站点更新信息失败！");
         }
-        return ResponseObject.newSuccessResponseObject(queryMap, SystemConstant.REQ_SUCCESS);
+        return ResponseObject.newSuccessResponseObject(queryMap, Constant.REQ_SUCCESS);
     }
 
     /**
@@ -89,10 +89,10 @@ public class ApiController {
         } catch (Exception e) {
             logger.error("----------------------- 获取信源互动统计数据失败！， error: {} --------------------------", e.getMessage());
             e.printStackTrace();
-            return ResponseObject.newErrorResponseObject(SystemConstant.REQ_ILLEGAL_CODE, "查询互动统计数据失败！");
+            return ResponseObject.newErrorResponseObject(Constant.REQ_ILLEGAL_CODE, "查询互动统计数据失败！");
         }
         logger.info("------------------------ queryMediaStats, return datas  --------------------");
-        return ResponseObject.newSuccessResponseObject(queryMap, SystemConstant.REQ_SUCCESS);
+        return ResponseObject.newSuccessResponseObject(queryMap, Constant.REQ_SUCCESS);
     }
 
 }
