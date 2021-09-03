@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="origin-when-crossorigin" />
+    <meta name="description" content="前言 记录一次解决poi读取excel内存溢出问题的过程，使用poi的sax解析方式处理海量数据的excel，也包括对空单元的处理及日期格式转化。 解决过程 sax事件驱动解析与原来的解析方式最大的区" />
+    <meta property="og:description" content="前言 记录一次解决poi读取excel内存溢出问题的过程，使用poi的sax解析方式处理海量数据的excel，也包括对空单元的处理及日期格式转化。 解决过程 sax事件驱动解析与原来的解析方式最大的区" />
+    <meta http-equiv="Cache-Control" content="no-transform" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>poi sax读取excel,解决大数据量导致的内存溢出问题 - 搬砖的老王 - 博客园</title>
+    <link id="favicon" rel="shortcut icon" href="//common.cnblogs.com/favicon.svg" type="image/svg+xml" />
+    
+    <link rel="stylesheet" href="/css/blog-common.min.css?v=cGPZX-91MnVsFpGp_qDIwTwedO-J7MOgyTfTUau0qqk" />
+    <link id="MainCss" rel="stylesheet" href="/skins/coffee/bundle-coffee.min.css?v=Y9jZElSXd1_SIyCam0BlUieX_j5gRAI1zEaKq7gMqLM" />
+    <link type="text/css" rel="stylesheet" href="/css/hljs/cnblogs.css?v=2spjdq1Snjw5rAm9auWVRax8Gb7nftS4ORu-8fQ7JGM" />
+    
+    <link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="/skins/coffee/bundle-coffee-mobile.min.css?v=n3U4q5QAEaErnOJP8KTU7vRDG-uCbq1FKqkEeF0Yz9o" />
+    
+    <link type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/wangchl/rss" />
+    <link type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/wangchl/rsd.xml" />
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/wangchl/wlwmanifest.xml" />
+    <script>
+        var currentBlogId = 429105;
+        var currentBlogApp = 'wangchl';
+        var cb_enable_mathjax = false;
+        var isLogined = false;
+        var isBlogOwner = false;
+        var skinName = 'coffee';
+        var visitorUserId = '';
+        var hasCustomScript = false;
+        try {
+            if (hasCustomScript && document.referrer && document.referrer.indexOf('baidu.com') >= 0) {
+                Object.defineProperty(document, 'referrer', { value: '' });
+                Object.defineProperty(Document.prototype, 'referrer', { get: function(){ return ''; } });
+            }
+        } catch(error) { }
+    </script>
+        <script>
+            var currentPostDateAdded = '2019-08-23 02:55';
+        </script>
+    <script src="https://common.cnblogs.com/scripts/jquery-2.2.0.min.js"></script>
+    <script src="/js/blog-common.min.js?v=movNGMsW6vKcskrZsYaB2rtqtqgVZ4y3ONEE0GANf3U"></script>
+    
+    
+    
+     <script type="text/javascript">
+        window.codeHighlightEngine = 1
+        window.enableCodeLineNumber = false
+     </script>
+</head>
+<body class="skin-coffee has-navbar">
+    <a name="top"></a>
+    <div id="top_nav" class="navbar forpc">
+        <nav id="nav_main" class="navbar-main">
+            <ul id="nav_left" class="navbar-list navbar-left">
+                <li class="navbar-branding"><a href="https://www.cnblogs.com/" title="开发者的网上家园"><img src="/images/logo.svg?v=R9M0WmLAIPVydmdzE2keuvnjl-bPR7_35oHqtiBzGsM" alt="博客园Logo" /></a></li>
+                <li><a href="/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-sitehome')">首页</a></li>
+                <li><a href="https://news.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-news')">新闻</a></li>
+                <li><a href="https://q.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-q')">博问</a></li>
+                <li><a id="nav_brandzone" href="https://brands.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-brands')">专区</a></li>
+                <li><a href="https://ing.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-ing')">闪存</a></li>
+                <li><a href="https://edu.cnblogs.com/" onclick="ga('send', 'event', 'Link', 'click', 'skin-navbar-edu')">班级</a></li>
+            </ul>
+            <ul id="nav_right" class="navbar-list navbar-right">
+                <li>
+                    <form id="zzk_search" class="navbar-search" action="https://zzk.cnblogs.com/s" method="get">
+                        <input name="w" id="zzk_search_input" placeholder="代码改变世界" type="text" tabindex="3" />
+                        <button type="submit" id="zzk_search_button">
+                            <img src="/images/aggsite/search.svg" alt="搜索" />
+                        </button>
+                    </form>
+                </li>
+                <li id="navbar_login_status" class="navbar-list">
+                    <a class="navbar-user-info navbar-blog" href="https://i.cnblogs.com/EditPosts.aspx?opt=1" alt="写随笔" title="写随笔">
+                        <img id="new_post_icon" class="navbar-icon" src="/images/aggsite/newpost.svg" alt="写随笔" />
+                    </a>
+                    <a id="navblog-myblog-icon" class="navbar-user-info navbar-blog" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx" alt="我的博客" title="我的博客">
+                        <img id="myblog_icon" class="navbar-icon" src="/images/aggsite/myblog.svg" alt="我的博客" />
+                    </a>
+                    <a class="navbar-user-info navbar-message navbar-icon-wrapper" href="https://msg.cnblogs.com/" alt="短消息" title="短消息">
+                        <img id="msg_icon" class="navbar-icon" src="/images/aggsite/message.svg?v=J0WS2P2iPgaIVgXxcAhliw4AFZIpaTWxtdoNAv9eiCA" alt="短消息" />
+                        <span id="msg_count" style="display: none"></span>
+                    </a>
+                    <div id="user_info" class="navbar-user-info dropdown">
+                        <a class="dropdown-button" href="https://home.cnblogs.com/">
+                            <img id="user_icon" class="navbar-avatar" src="/images/aggsite/avatar-default.svg" alt="用户头像" />
+                        </a>
+                        <div class="dropdown-menu">
+                            <a id="navblog-myblog-text" href="https://passport.cnblogs.com/GetBlogApplyStatus.aspx">我的博客</a>
+                            <a href="https://home.cnblogs.com/">我的园子</a>
+                            <a href="https://account.cnblogs.com/settings/account">账号设置</a>
+                            <a href="javascript:void(0)" id="navbar_lite_mode_toggle" title="简洁模式会使用简洁款皮肤显示所有博客">
+    简洁模式 <img id="navbar_lite_mode_on" src="/images/lite-mode-check.svg" class="hide" /><span id="navbar_lite_mode_spinner" class="hide">...</span>
+</a>
+                            <a href="javascript:void(0)" onclick="account.logout();">退出登录</a>
+                        </div>
+                    </div>
+                    <a class="navbar-anonymous" href="https://account.cnblogs.com/signup/">注册</a>
+                    <a class="navbar-anonymous" href="javascript:void(0);" onclick="account.login()">登录</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    
+    
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a href="https://www.cnblogs.com/wangchl/"><img id="blogLogo" src="/skins/custom/images/logo.gif" alt="返回主页" /></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle HeaderMainTitle" href="https://www.cnblogs.com/wangchl/">搬砖的老王</a>
+</h1>
+<h2></h2>
+
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		<div id="navigator">
+			
+<ul id="navList">
+	<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">
+博客园</a>
+</li>
+	<li>
+<a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/wangchl/">
+首页</a>
+</li>
+	<li>
+
+<a id="blog_nav_newpost" class="menu" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">
+新随笔</a>
+</li>
+	<li>
+<a id="blog_nav_contact" class="menu" href="https://msg.cnblogs.com/send/%E6%90%AC%E7%A0%96%E7%9A%84%E8%80%81%E7%8E%8B">
+联系</a></li>
+	<li>
+<a id="blog_nav_admin" class="menu" href="https://i.cnblogs.com/">
+管理</a>
+</li>
+	<li>
+<a id="blog_nav_rss" class="menu" href="javascript:void(0)" data-rss="https://www.cnblogs.com/wangchl/rss/">
+订阅</a>
+	
+<a id="blog_nav_rss_image" href="https://www.cnblogs.com/wangchl/rss/">
+    <img src="/skins/coffee/images/xml.gif" alt="订阅" />
+</a></li>
+</ul>
+
+
+
+			<div class="blogStats">
+				
+				<div id="blog_stats_place_holder"><script>loadBlogStats();</script></div>
+				
+			</div><!--end: blogStats -->
+		</div><!--end: navigator 博客导航栏 -->
+		<div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class = "postTitle">
+			
+<a id="cb_post_title_url" class="postTitle2 vertical-middle" href="https://www.cnblogs.com/wangchl/p/11400025.html">
+    <span>poi sax读取excel,解决大数据量导致的内存溢出问题</span>
+    
+
+
+
+</a>
+
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body" class="blogpost-body blogpost-body-html">
+<p style="text-align: left"><span style="color: rgba(136, 136, 136, 1); font-size: 18px"><strong>前言</strong></span></p>
+<p><span style="background-color: rgba(255, 255, 255, 1); color: rgba(0, 0, 0, 1)"><span style="color: rgba(136, 136, 136, 1)">　　<span style="color: rgba(51, 51, 51, 1)">记录一次解决poi读取excel内存溢出问题的过程，使用poi的sax解析方式处理海量数据的excel，也包括对空单元的处理及日期格式转化。</span></span></span></p>
+<p style="text-align: left"><span style="font-size: 14pt"><strong><span style="background-color: rgba(255, 255, 255, 1); color: rgba(0, 0, 0, 1)"><span style="color: rgba(136, 136, 136, 1)">解决过程</span></span></strong></span></p>
+<p>&nbsp;　　sax事件驱动解析与原来的解析方式最大的区别就是，sax将excel转换成xml格式然后一行去读取，而不是一下将excel解析到内存中，这样就可以有效的解决由数据量大导致的内存溢出问题了，sax解析时会忽略掉空格，这一点要单独去处理。下面用代码来说话。</p>
+<p><strong><span style="font-size: 18px">1.sax将excel转换成xml</span></strong></p>
+<p><strong><span style="font-size: 18px">　　</span></strong><span style="font-size: 14px">为了更好的使用sax首先看看被转化成xml是什么样子的。</span></p>
+<div class="cnblogs_code">
+<pre><span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> main(String[] args) {
+        String filename </span>="D:\\8月\\otc\\sax解析测试\\0221otcposdata20190909.xlsm"<span style="color: rgba(0, 0, 0, 1)">;
+        OPCPackage pkg;
+        </span><span style="color: rgba(0, 0, 255, 1)">try</span><span style="color: rgba(0, 0, 0, 1)"> {
+            pkg </span>=<span style="color: rgba(0, 0, 0, 1)"> OPCPackage.open(filename);
+            XSSFReader r </span>= <span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> XSSFReader(pkg);
+            </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)">查看转换的xml原始文件，方便理解后面解析时的处理,</span>
+            InputStream in = r.getSheet("rId1"<span style="color: rgba(0, 0, 0, 1)">);
+            </span><span style="color: rgba(0, 0, 255, 1)">byte</span>[] buf = <span style="color: rgba(0, 0, 255, 1)">new</span> <span style="color: rgba(0, 0, 255, 1)">byte</span>[1024<span style="color: rgba(0, 0, 0, 1)">];
+            </span><span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> len;
+            </span><span style="color: rgba(0, 0, 255, 1)">while</span> ((len = in.read(buf)) != -1<span style="color: rgba(0, 0, 0, 1)">) {
+                System.out.write(buf, </span>0<span style="color: rgba(0, 0, 0, 1)">, len);
+            }
+        } </span><span style="color: rgba(0, 0, 255, 1)">catch</span><span style="color: rgba(0, 0, 0, 1)"> (Exception e) {
+            e.printStackTrace();
+        }
+    }</span></pre>
+</div>
+<p>解析后的样子，发现有好多标签，cols、col、row、 c 、v等等这些就是excel中的元素，后面的解析会用到。</p>
+<p><img src="https://img2018.cnblogs.com/blog/1387927/201908/1387927-20190823143331600-993612725.png" alt=""></p>
+<p>&nbsp;</p>
+<p><strong><span style="font-size: 18px">2.解析excel2007</span></strong></p>
+<p><strong><span style="font-size: 18px">　　</span></strong><span style="font-size: 14px">通过继承DefaultHandler类，重写process()，startElement()，characters()，endElement()这四个方法。</span></p>
+<div class="cnblogs_code">
+<pre><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> java.io.IOException;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> java.io.InputStream;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> java.util.ArrayList;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> java.util.List;
+
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.openxml4j.exceptions.OpenXML4JException;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.openxml4j.opc.OPCPackage;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.ss.usermodel.BuiltinFormats;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.ss.usermodel.DataFormatter;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.xssf.eventusermodel.XSSFReader;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.xssf.eventusermodel.XSSFReader.SheetIterator;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.xssf.model.SharedStringsTable;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.xssf.model.StylesTable;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.xssf.usermodel.XSSFCellStyle;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.xssf.usermodel.XSSFRichTextString;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.xml.sax.Attributes;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.xml.sax.InputSource;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.xml.sax.SAXException;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.xml.sax.XMLReader;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.xml.sax.helpers.DefaultHandler;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.xml.sax.helpers.XMLReaderFactory;
+
+
+</span><span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">class</span> ExcelXlsxReader <span style="color: rgba(0, 0, 255, 1)">extends</span><span style="color: rgba(0, 0, 0, 1)"> DefaultHandler {
+
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> IExcelRowReader rowReader;
+
+    </span><span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> setRowReader(IExcelRowReader rowReader) {
+        </span><span style="color: rgba(0, 0, 255, 1)">this</span>.rowReader =<span style="color: rgba(0, 0, 0, 1)"> rowReader;
+    }
+
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> SharedStringsTable sst;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> StylesTable stylesTable;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> String lastContents;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">int</span> sheetIndex = -1<span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> CellDataType nextDataType =<span style="color: rgba(0, 0, 0, 1)"> CellDataType.SSTINDEX;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">final</span> DataFormatter formatter = <span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> DataFormatter();
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">short</span><span style="color: rgba(0, 0, 0, 1)"> formatIndex;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> String formatString;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> List&lt;List&lt;String&gt;&gt; templist = <span style="color: rgba(0, 0, 255, 1)">new</span> ArrayList&lt;List&lt;String&gt;&gt;<span style="color: rgba(0, 0, 0, 1)">();
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> List&lt;String&gt; rowList = <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">boolean</span> allowNullRow = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> String dimension;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> longest;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> List&lt;String&gt;<span style="color: rgba(0, 0, 0, 1)"> currentRow;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">boolean</span> isSSTIndex = <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> String sheetName = <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+
+
+    </span><span style="color: rgba(0, 128, 0, 1)">/**</span><span style="color: rgba(0, 128, 0, 1)">
+     * 遍历工作簿中所有的电子表格
+     * 
+     * </span><span style="color: rgba(128, 128, 128, 1)">@param</span><span style="color: rgba(0, 128, 0, 1)"> filename
+     * </span><span style="color: rgba(128, 128, 128, 1)">@throws</span><span style="color: rgba(0, 128, 0, 1)"> IOException
+     * </span><span style="color: rgba(128, 128, 128, 1)">@throws</span><span style="color: rgba(0, 128, 0, 1)"> OpenXML4JException
+     * </span><span style="color: rgba(128, 128, 128, 1)">@throws</span><span style="color: rgba(0, 128, 0, 1)"> SAXException
+     * </span><span style="color: rgba(128, 128, 128, 1)">@throws</span><span style="color: rgba(0, 128, 0, 1)"> Exception
+     </span><span style="color: rgba(0, 128, 0, 1)">*/</span>
+    <span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">void</span> process(String filename,String newFileName,String fileType) <span style="color: rgba(0, 0, 255, 1)">throws</span><span style="color: rgba(0, 0, 0, 1)"> IOException,
+            OpenXML4JException, SAXException {
+        OPCPackage pkg </span>=<span style="color: rgba(0, 0, 0, 1)"> OPCPackage.open(filename);
+        XSSFReader r </span>= <span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> XSSFReader(pkg);
+        stylesTable </span>=<span style="color: rgba(0, 0, 0, 1)"> r.getStylesTable();
+        SharedStringsTable sst </span>=<span style="color: rgba(0, 0, 0, 1)"> r.getSharedStringsTable();
+        XMLReader parser </span>=<span style="color: rgba(0, 0, 0, 1)"> fetchSheetParser(sst);
+        SheetIterator sheets </span>=<span style="color: rgba(0, 0, 0, 1)"> (SheetIterator) r.getSheetsData();
+        </span><span style="color: rgba(0, 0, 255, 1)">while</span><span style="color: rgba(0, 0, 0, 1)"> (sheets.hasNext()) {
+            InputStream sheet </span>=<span style="color: rgba(0, 0, 0, 1)"> sheets.next();</span><span style="color: rgba(0, 0, 0, 1)">
+            sheetName </span>=<span style="color: rgba(0, 0, 0, 1)"> sheets.getSheetName();
+            sheetIndex</span>++<span style="color: rgba(0, 0, 0, 1)">;
+            InputSource sheetSource </span>= <span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> InputSource(sheet);
+            parser.parse(sheetSource);
+            sheet.close();
+        }
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)">写文件</span>
+<span style="color: rgba(0, 0, 0, 1)">        rowReader.writeExcel(templist,sheetName,newFileName,fileType);
+        templist </span>= <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+    }
+
+    </span><span style="color: rgba(0, 0, 255, 1)">public</span><span style="color: rgba(0, 0, 0, 1)"> XMLReader fetchSheetParser(SharedStringsTable sst)
+            </span><span style="color: rgba(0, 0, 255, 1)">throws</span><span style="color: rgba(0, 0, 0, 1)"> SAXException {
+        XMLReader parser </span>=<span style="color: rgba(0, 0, 0, 1)"> XMLReaderFactory
+                .createXMLReader(</span>"org.apache.xerces.parsers.SAXParser"<span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">this</span>.sst =<span style="color: rgba(0, 0, 0, 1)"> sst;
+        parser.setContentHandler(</span><span style="color: rgba(0, 0, 255, 1)">this</span><span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> parser;
+    }
+
+    @Override
+    </span><span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">void</span> characters(<span style="color: rgba(0, 0, 255, 1)">char</span>[] ch, <span style="color: rgba(0, 0, 255, 1)">int</span> start, <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> length)
+            </span><span style="color: rgba(0, 0, 255, 1)">throws</span><span style="color: rgba(0, 0, 0, 1)"> SAXException {
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 得到单元格内容的值</span>
+        lastContents += <span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> String(ch, start, length);
+    }
+
+    @Override
+    </span><span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> startElement(String uri, String localName, String qName,
+            Attributes attributes) </span><span style="color: rgba(0, 0, 255, 1)">throws</span><span style="color: rgba(0, 0, 0, 1)"> SAXException {
+        
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (qName.equals("dimension"<span style="color: rgba(0, 0, 0, 1)">)) {
+            dimension </span>= attributes.getValue("ref"<span style="color: rgba(0, 0, 0, 1)">);
+            longest </span>=<span style="color: rgba(0, 0, 0, 1)"> covertRowIdtoInt(dimension.substring(dimension
+                    .indexOf(</span>":") + 1<span style="color: rgba(0, 0, 0, 1)">));
+        }
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)">行</span>
+        <span style="color: rgba(0, 0, 255, 1)">if</span> (qName.equals("row"<span style="color: rgba(0, 0, 0, 1)">)) {
+            currentRow </span>= <span style="color: rgba(0, 0, 255, 1)">new</span> ArrayList&lt;String&gt;<span style="color: rgba(0, 0, 0, 1)">();
+        }
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)">单元格 </span>
+        <span style="color: rgba(0, 0, 255, 1)">if</span> (qName.equals("c"<span style="color: rgba(0, 0, 0, 1)">)) {
+            </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 判断单元格的值是SST的索引</span>
+            <span style="color: rgba(0, 0, 255, 1)">if</span> (attributes.getValue("t") != <span style="color: rgba(0, 0, 255, 1)">null</span>
+                    &amp;&amp; attributes.getValue("t").equals("s"<span style="color: rgba(0, 0, 0, 1)">)) {
+                isSSTIndex </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                nextDataType </span>=<span style="color: rgba(0, 0, 0, 1)"> CellDataType.SSTINDEX;
+            } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                isSSTIndex </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 当单元格的值不是SST的索引放一个空值占位。</span>
+                currentRow.add(""<span style="color: rgba(0, 0, 0, 1)">);
+                </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 判断单元格格式类型</span>
+<span style="color: rgba(0, 0, 0, 1)">                setNextDataType(attributes);
+            }
+        }
+        lastContents </span>= ""<span style="color: rgba(0, 0, 0, 1)">;
+
+    }
+
+    @Override
+    </span><span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> endElement(String uri, String localName, String qName)
+            </span><span style="color: rgba(0, 0, 255, 1)">throws</span><span style="color: rgba(0, 0, 0, 1)"> SAXException {
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 行结束,存储一行数据</span>
+        <span style="color: rgba(0, 0, 255, 1)">if</span> (qName.equals("row"<span style="color: rgba(0, 0, 0, 1)">)) {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (isWriteRow(currentRow)) {
+                rowList </span>= <span style="color: rgba(0, 0, 255, 1)">new</span> ArrayList&lt;String&gt;<span style="color: rgba(0, 0, 0, 1)">();
+                rowList.addAll(currentRow);
+                templist.add(rowList);
+                rowList </span>= <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+            }
+        }
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 取值</span>
+        <span style="color: rgba(0, 0, 255, 1)">if</span> (qName.equals("v"<span style="color: rgba(0, 0, 0, 1)">)) {
+            </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 单元格的值是SST的索引</span>
+            <span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (isSSTIndex) {
+                lastContents </span>=<span style="color: rgba(0, 0, 0, 1)"> getDataValue(lastContents);
+            } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 单元格的值不是SST的索引,删除占位空格，再取值</span>
+                currentRow.remove(currentRow.size() - 1<span style="color: rgba(0, 0, 0, 1)">);
+                lastContents </span>=<span style="color: rgba(0, 0, 0, 1)"> getDataValue(lastContents);
+            }
+            currentRow.add(lastContents);
+        }
+    }
+
+    </span><span style="color: rgba(0, 128, 0, 1)">/**</span><span style="color: rgba(0, 128, 0, 1)">
+     * 单元格中的数据类型枚举
+     </span><span style="color: rgba(0, 128, 0, 1)">*/</span>
+    <span style="color: rgba(0, 0, 255, 1)">enum</span><span style="color: rgba(0, 0, 0, 1)"> CellDataType {
+        SSTINDEX, NUMBER, DATE, NULL
+    }
+    
+    </span><span style="color: rgba(0, 128, 0, 1)">/**</span><span style="color: rgba(0, 128, 0, 1)">
+     * 在取值前处理单元格数据类型，目前只对日期格式进行处理，可扩展。
+     </span><span style="color: rgba(0, 128, 0, 1)">*/</span>
+    <span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> setNextDataType(Attributes attributes) {
+        nextDataType </span>=<span style="color: rgba(0, 0, 0, 1)"> CellDataType.NUMBER;
+        formatIndex </span>= -1<span style="color: rgba(0, 0, 0, 1)">;
+        formatString </span>= <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+        String dateFormat </span>= "m/d/yy,yyyy\\-mm\\-dd;@,yyyy/m/d;@,yyyy/m/d\\ h:mm;@,mm/dd/yy;@,m/d;@,"
+                + "yy/m/d;@,m/d/yy;@,[$-409]yyyy/m/d\\ h:mm\\ AM/PM;@,[$-F800]dddd\\,\\ mmmm\\ dd\\,\\ yyyy"<span style="color: rgba(0, 0, 0, 1)">;
+        String cellStyleStr </span>= attributes.getValue("s"<span style="color: rgba(0, 0, 0, 1)">);
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (cellStyleStr != <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">) {
+            </span><span style="color: rgba(0, 0, 255, 1)">int</span> styleIndex =<span style="color: rgba(0, 0, 0, 1)"> Integer.parseInt(cellStyleStr);
+            XSSFCellStyle style </span>=<span style="color: rgba(0, 0, 0, 1)"> stylesTable.getStyleAt(styleIndex);
+            formatIndex </span>=<span style="color: rgba(0, 0, 0, 1)"> style.getDataFormat();
+            formatString </span>=<span style="color: rgba(0, 0, 0, 1)"> style.getDataFormatString();
+            </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 对日期类型进行处理</span>
+            <span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (dateFormat.contains(formatString)) {
+                nextDataType </span>=<span style="color: rgba(0, 0, 0, 1)"> CellDataType.DATE;
+                formatString </span>= "yyyy-MM-dd"<span style="color: rgba(0, 0, 0, 1)">;
+            }
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (formatString == <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">) {
+                nextDataType </span>=<span style="color: rgba(0, 0, 0, 1)"> CellDataType.NULL;
+                formatString </span>=<span style="color: rgba(0, 0, 0, 1)"> BuiltinFormats.getBuiltinFormat(formatIndex);
+            }
+        }
+    }
+
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">boolean</span> isWriteRow(List&lt;String&gt;<span style="color: rgba(0, 0, 0, 1)"> list) {
+        </span><span style="color: rgba(0, 0, 255, 1)">boolean</span> flag = <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = 0; i &lt; list.size(); i++<span style="color: rgba(0, 0, 0, 1)">) {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (list.get(i) != <span style="color: rgba(0, 0, 255, 1)">null</span> &amp;&amp; !list.get(i).equals(""<span style="color: rgba(0, 0, 0, 1)">)) {
+                flag </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+            }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (allowNullRow) {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">flag) {
+                flag </span>= <span style="color: rgba(0, 0, 255, 1)">true</span>;<span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 允许一次空行</span>
+                allowNullRow = <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+            }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> flag;
+
+    }
+
+    </span><span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">static</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> covertRowIdtoInt(String rowId) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> firstDigit = -1<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> c = 0; c &lt; rowId.length(); ++<span style="color: rgba(0, 0, 0, 1)">c) {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (Character.isDigit(rowId.charAt(c))) {
+                firstDigit </span>=<span style="color: rgba(0, 0, 0, 1)"> c;
+                </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+            }
+        }
+        String newRowId </span>= rowId.substring(0<span style="color: rgba(0, 0, 0, 1)">, firstDigit);
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> num = 0<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> result = 0<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> length =<span style="color: rgba(0, 0, 0, 1)"> newRowId.length();
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = 0; i &lt; length; i++<span style="color: rgba(0, 0, 0, 1)">) {
+            </span><span style="color: rgba(0, 0, 255, 1)">char</span> ch = newRowId.charAt(length - i - 1<span style="color: rgba(0, 0, 0, 1)">);
+            num </span>= (<span style="color: rgba(0, 0, 255, 1)">int</span>) (ch - 'A' + 1<span style="color: rgba(0, 0, 0, 1)">);
+            num </span>*= Math.pow(26<span style="color: rgba(0, 0, 0, 1)">, i);
+            result </span>+=<span style="color: rgba(0, 0, 0, 1)"> num;
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> result;
+
+    }
+
+    </span><span style="color: rgba(0, 128, 0, 1)">/**</span><span style="color: rgba(0, 128, 0, 1)">
+     * 对解析出来的数据进行类型处理
+     </span><span style="color: rgba(0, 128, 0, 1)">*/</span>
+    <span style="color: rgba(0, 0, 255, 1)">public</span><span style="color: rgba(0, 0, 0, 1)"> String getDataValue(String value) {
+        String thisStr </span>= <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">switch</span><span style="color: rgba(0, 0, 0, 1)"> (nextDataType) {
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span><span style="color: rgba(0, 0, 0, 1)"> SSTINDEX:
+            String sstIndex </span>=<span style="color: rgba(0, 0, 0, 1)"> value.toString();
+            </span><span style="color: rgba(0, 0, 255, 1)">try</span><span style="color: rgba(0, 0, 0, 1)"> {
+                </span><span style="color: rgba(0, 0, 255, 1)">int</span> idx =<span style="color: rgba(0, 0, 0, 1)"> Integer.parseInt(sstIndex);
+                XSSFRichTextString rtss </span>= <span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> XSSFRichTextString(sst
+                        .getEntryAt(idx));
+                thisStr </span>=<span style="color: rgba(0, 0, 0, 1)"> rtss.toString();
+                rtss </span>= <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+            } </span><span style="color: rgba(0, 0, 255, 1)">catch</span><span style="color: rgba(0, 0, 0, 1)"> (NumberFormatException ex) {
+                thisStr </span>=<span style="color: rgba(0, 0, 0, 1)"> value.toString();
+            }
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span><span style="color: rgba(0, 0, 0, 1)"> DATE:
+            thisStr </span>=<span style="color: rgba(0, 0, 0, 1)"> formatter.formatRawCellContents(
+                    Double.parseDouble(value), formatIndex, formatString);
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">default</span><span style="color: rgba(0, 0, 0, 1)">:
+            thisStr </span>=<span style="color: rgba(0, 0, 0, 1)"> value;
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> thisStr;
+    }
+    
+}</span></pre>
+</div>
+<p><strong>3.解析excel2003</strong></p>
+<p><strong>　　</strong><span style="font-size: 14px">与读取excel2007有所区别，Excel2003需要通过继承HSSFListener类来解析，重写process()、processRecord()两个方法，在processRecord中进行读取操作。</span></p>
+<div class="cnblogs_code">
+<pre><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> java.io.FileInputStream;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> java.io.IOException;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> java.util.ArrayList;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> java.util.List;
+
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.eventusermodel.EventWorkbookBuilder.SheetRecordCollectingListener;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.eventusermodel.FormatTrackingHSSFListener;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.eventusermodel.HSSFListener;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.eventusermodel.HSSFRequest;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.eventusermodel.MissingRecordAwareHSSFListener;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.eventusermodel.dummyrecord.LastCellOfRowDummyRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.eventusermodel.dummyrecord.MissingCellDummyRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.model.HSSFFormulaParser;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.record.BOFRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.record.BlankRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.record.BoolErrRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.record.BoundSheetRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.record.FormulaRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.record.LabelRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.record.LabelSSTRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.record.NumberRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.record.Record;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.record.SSTRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.record.StringRecord;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.hssf.usermodel.HSSFWorkbook;
+</span><span style="color: rgba(0, 0, 255, 1)">import</span><span style="color: rgba(0, 0, 0, 1)"> org.apache.poi.poifs.filesystem.POIFSFileSystem;
+
+</span><span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">class</span> ExcelXlsReader <span style="color: rgba(0, 0, 255, 1)">implements</span><span style="color: rgba(0, 0, 0, 1)"> HSSFListener {
+
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">int</span> minColumns = -1<span style="color: rgba(0, 0, 0, 1)">;
+
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> POIFSFileSystem fs;
+
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> lastRowNumber;
+
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> lastColumnNumber;
+
+    </span><span style="color: rgba(0, 128, 0, 1)">/**</span><span style="color: rgba(0, 128, 0, 1)"> Should we output the formula, or the value it has? </span><span style="color: rgba(0, 128, 0, 1)">*/</span>
+    <span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">boolean</span> outputFormulaValues = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+
+    </span><span style="color: rgba(0, 128, 0, 1)">/**</span><span style="color: rgba(0, 128, 0, 1)"> For parsing Formulas </span><span style="color: rgba(0, 128, 0, 1)">*/</span>
+    <span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> SheetRecordCollectingListener workbookBuildingListener;
+
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> excel2003工作薄</span>
+    <span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> HSSFWorkbook stubWorkbook;
+
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> Records we pick up as we process</span>
+    <span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> SSTRecord sstRecord;
+
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> FormatTrackingHSSFListener formatListener;
+
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 表索引</span>
+    <span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">int</span> sheetIndex = -1<span style="color: rgba(0, 0, 0, 1)">;
+
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> BoundSheetRecord[] orderedBSRs;
+
+    @SuppressWarnings(</span>"unchecked"<span style="color: rgba(0, 0, 0, 1)">)
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> ArrayList boundSheetRecords = <span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> ArrayList();
+
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> For handling formulas with string results</span>
+    <span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> nextRow;
+
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">int</span><span style="color: rgba(0, 0, 0, 1)"> nextColumn;
+
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">boolean</span><span style="color: rgba(0, 0, 0, 1)"> outputNextStringRecord;
+
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 当前行</span>
+    <span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">int</span> curRow = 0<span style="color: rgba(0, 0, 0, 1)">;
+
+    </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 存储行记录的容器</span>
+    <span style="color: rgba(0, 0, 255, 1)">private</span> List&lt;String&gt; rowlist = <span style="color: rgba(0, 0, 255, 1)">new</span> ArrayList&lt;String&gt;<span style="color: rgba(0, 0, 0, 1)">();;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">boolean</span> allowNullRow = <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+    @SuppressWarnings(</span>"unused"<span style="color: rgba(0, 0, 0, 1)">)
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> String sheetName;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> List&lt;List&lt;String&gt;&gt; templist = <span style="color: rgba(0, 0, 255, 1)">new</span> ArrayList&lt;List&lt;String&gt;&gt;<span style="color: rgba(0, 0, 0, 1)">();
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> List&lt;String&gt; r = <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span><span style="color: rgba(0, 0, 0, 1)"> IExcelRowReader rowReader;
+
+    </span><span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> setRowReader(IExcelRowReader rowReader) {
+        </span><span style="color: rgba(0, 0, 255, 1)">this</span>.rowReader =<span style="color: rgba(0, 0, 0, 1)"> rowReader;
+    }
+
+    </span><span style="color: rgba(0, 128, 0, 1)">/**</span><span style="color: rgba(0, 128, 0, 1)">
+     * 遍历excel下所有的sheet
+     * 
+     * </span><span style="color: rgba(128, 128, 128, 1)">@throws</span><span style="color: rgba(0, 128, 0, 1)"> IOException
+     </span><span style="color: rgba(0, 128, 0, 1)">*/</span>
+    <span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">void</span> process(String fileName,String newFileName,String fileType) <span style="color: rgba(0, 0, 255, 1)">throws</span><span style="color: rgba(0, 0, 0, 1)"> IOException {
+        </span><span style="color: rgba(0, 0, 255, 1)">this</span>.fs = <span style="color: rgba(0, 0, 255, 1)">new</span> POIFSFileSystem(<span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> FileInputStream(fileName));
+        MissingRecordAwareHSSFListener listener </span>= <span style="color: rgba(0, 0, 255, 1)">new</span> MissingRecordAwareHSSFListener(<span style="color: rgba(0, 0, 255, 1)">this</span><span style="color: rgba(0, 0, 0, 1)">);
+        formatListener </span>= <span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> FormatTrackingHSSFListener(listener);
+        HSSFEventFactory factory </span>= <span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> HSSFEventFactory();     
+        HSSFRequest request </span>= <span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> HSSFRequest();
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (outputFormulaValues) {
+            request.addListenerForAllRecords(formatListener);          
+        } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+            workbookBuildingListener </span>= <span style="color: rgba(0, 0, 255, 1)">new</span><span style="color: rgba(0, 0, 0, 1)"> SheetRecordCollectingListener(formatListener);
+            request.addListenerForAllRecords(workbookBuildingListener);
+        }
+        factory.processWorkbookEvents(request, fs);
+        rowReader.writeExcel(templist,sheetName,newFileName,fileType);    
+           templist </span>= <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+    }
+
+    </span><span style="color: rgba(0, 128, 0, 1)">/**</span><span style="color: rgba(0, 128, 0, 1)">
+     * HSSFListener 监听方法，处理 Record
+     </span><span style="color: rgba(0, 128, 0, 1)">*/</span><span style="color: rgba(0, 0, 0, 1)">
+    @SuppressWarnings(</span>"unchecked"<span style="color: rgba(0, 0, 0, 1)">)
+    </span><span style="color: rgba(0, 0, 255, 1)">public</span> <span style="color: rgba(0, 0, 255, 1)">void</span><span style="color: rgba(0, 0, 0, 1)"> processRecord(Record record) {
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> thisRow = -1<span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">int</span> thisColumn = -1<span style="color: rgba(0, 0, 0, 1)">;
+        String thisStr </span>= <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+        String value </span>= <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">switch</span><span style="color: rgba(0, 0, 0, 1)"> (record.getSid()) {
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span><span style="color: rgba(0, 0, 0, 1)"> BoundSheetRecord.sid:
+            boundSheetRecords.add(record);
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span><span style="color: rgba(0, 0, 0, 1)"> BOFRecord.sid:
+            BOFRecord br </span>=<span style="color: rgba(0, 0, 0, 1)"> (BOFRecord) record;
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (br.getType() ==<span style="color: rgba(0, 0, 0, 1)"> BOFRecord.TYPE_WORKSHEET) {
+                </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 如果有需要，则建立子工作薄</span>
+                <span style="color: rgba(0, 0, 255, 1)">if</span> (workbookBuildingListener != <span style="color: rgba(0, 0, 255, 1)">null</span> &amp;&amp; stubWorkbook == <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">) {
+                    stubWorkbook </span>=<span style="color: rgba(0, 0, 0, 1)"> workbookBuildingListener.getStubHSSFWorkbook();
+                }
+
+                sheetIndex</span>++<span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span> (orderedBSRs == <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">) {
+                    orderedBSRs </span>=<span style="color: rgba(0, 0, 0, 1)"> BoundSheetRecord.orderByBofPosition(boundSheetRecords);
+                }
+                sheetName </span>=<span style="color: rgba(0, 0, 0, 1)"> orderedBSRs[sheetIndex].getSheetname();
+                </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)">ExcelRowReader.SHEETNAME = sheetName;</span>
+<span style="color: rgba(0, 0, 0, 1)">            }
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span><span style="color: rgba(0, 0, 0, 1)"> SSTRecord.sid:
+            sstRecord </span>=<span style="color: rgba(0, 0, 0, 1)"> (SSTRecord) record;
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span><span style="color: rgba(0, 0, 0, 1)"> BlankRecord.sid:
+            BlankRecord brec </span>=<span style="color: rgba(0, 0, 0, 1)"> (BlankRecord) record;
+            thisRow </span>=<span style="color: rgba(0, 0, 0, 1)"> brec.getRow();
+            thisColumn </span>=<span style="color: rgba(0, 0, 0, 1)"> brec.getColumn();
+            thisStr </span>= ""<span style="color: rgba(0, 0, 0, 1)">;
+            rowlist.add(thisColumn, thisStr);
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span> BoolErrRecord.sid: <span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 单元格为布尔类型</span>
+            BoolErrRecord berec =<span style="color: rgba(0, 0, 0, 1)"> (BoolErrRecord) record;
+            thisRow </span>=<span style="color: rgba(0, 0, 0, 1)"> berec.getRow();
+            thisColumn </span>=<span style="color: rgba(0, 0, 0, 1)"> berec.getColumn();
+            thisStr </span>= berec.getBooleanValue() + ""<span style="color: rgba(0, 0, 0, 1)">;
+            rowlist.add(thisColumn, thisStr);
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span> FormulaRecord.sid: <span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 单元格为公式类型</span>
+            FormulaRecord frec =<span style="color: rgba(0, 0, 0, 1)"> (FormulaRecord) record;
+            thisRow </span>=<span style="color: rgba(0, 0, 0, 1)"> frec.getRow();
+            thisColumn </span>=<span style="color: rgba(0, 0, 0, 1)"> frec.getColumn();
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (outputFormulaValues) {
+                </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (Double.isNaN(frec.getValue())) {
+                    outputNextStringRecord </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                    nextRow </span>=<span style="color: rgba(0, 0, 0, 1)"> frec.getRow();
+                    nextColumn </span>=<span style="color: rgba(0, 0, 0, 1)"> frec.getColumn();
+                } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                    thisStr </span>=<span style="color: rgba(0, 0, 0, 1)"> formatListener.formatNumberDateCell(frec);
+                }
+            } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                thisStr </span>= '"' + HSSFFormulaParser.toFormulaString(stubWorkbook, frec.getParsedExpression()) + '"'<span style="color: rgba(0, 0, 0, 1)">;
+            }
+            rowlist.add(thisColumn, thisStr);
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span> StringRecord.sid:<span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 单元格中公式的字符串</span>
+            <span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (outputNextStringRecord) {
+                StringRecord srec </span>=<span style="color: rgba(0, 0, 0, 1)"> (StringRecord) record;
+                thisStr </span>=<span style="color: rgba(0, 0, 0, 1)"> srec.getString();
+                thisRow </span>=<span style="color: rgba(0, 0, 0, 1)"> nextRow;
+                thisColumn </span>=<span style="color: rgba(0, 0, 0, 1)"> nextColumn;
+                outputNextStringRecord </span>= <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+            }
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span><span style="color: rgba(0, 0, 0, 1)"> LabelRecord.sid:
+            LabelRecord lrec </span>=<span style="color: rgba(0, 0, 0, 1)"> (LabelRecord) record;
+            curRow </span>= thisRow =<span style="color: rgba(0, 0, 0, 1)"> lrec.getRow();
+            thisColumn </span>=<span style="color: rgba(0, 0, 0, 1)"> lrec.getColumn();
+            value </span>=<span style="color: rgba(0, 0, 0, 1)"> lrec.getValue().trim();
+            value </span>= value.equals("") ? " "<span style="color: rgba(0, 0, 0, 1)"> : value;
+            </span><span style="color: rgba(0, 0, 255, 1)">this</span><span style="color: rgba(0, 0, 0, 1)">.rowlist.add(thisColumn, value);
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span> LabelSSTRecord.sid: <span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 单元格为字符串类型</span>
+            LabelSSTRecord lsrec =<span style="color: rgba(0, 0, 0, 1)"> (LabelSSTRecord) record;
+            curRow </span>= thisRow =<span style="color: rgba(0, 0, 0, 1)"> lsrec.getRow();
+            thisColumn </span>=<span style="color: rgba(0, 0, 0, 1)"> lsrec.getColumn();
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (sstRecord == <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">) {
+                rowlist.add(thisColumn, </span>" "<span style="color: rgba(0, 0, 0, 1)">);
+            } </span><span style="color: rgba(0, 0, 255, 1)">else</span><span style="color: rgba(0, 0, 0, 1)"> {
+                value </span>=<span style="color: rgba(0, 0, 0, 1)"> sstRecord.getString(lsrec.getSSTIndex()).toString().trim();
+                value </span>= value.equals("") ? " "<span style="color: rgba(0, 0, 0, 1)"> : value;
+                rowlist.add(thisColumn, value);
+            }
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">case</span> NumberRecord.sid: <span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 单元格为数字类型</span>
+            NumberRecord numrec =<span style="color: rgba(0, 0, 0, 1)"> (NumberRecord) record;
+            curRow </span>= thisRow =<span style="color: rgba(0, 0, 0, 1)"> numrec.getRow();
+            thisColumn </span>=<span style="color: rgba(0, 0, 0, 1)"> numrec.getColumn();
+            value </span>=<span style="color: rgba(0, 0, 0, 1)"> formatListener.formatNumberDateCell(numrec).trim();
+            value </span>= value.equals("") ? " "<span style="color: rgba(0, 0, 0, 1)"> : value;
+            </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 向容器加入列值</span>
+<span style="color: rgba(0, 0, 0, 1)">            rowlist.add(thisColumn, value);
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        </span><span style="color: rgba(0, 0, 255, 1)">default</span><span style="color: rgba(0, 0, 0, 1)">:
+            </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+        }
+
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 遇到新行的操作</span>
+        <span style="color: rgba(0, 0, 255, 1)">if</span> (thisRow != -1 &amp;&amp; thisRow !=<span style="color: rgba(0, 0, 0, 1)"> lastRowNumber) {
+            lastColumnNumber </span>= -1<span style="color: rgba(0, 0, 0, 1)">;
+        }
+
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 空值的操作</span>
+        <span style="color: rgba(0, 0, 255, 1)">if</span> (record <span style="color: rgba(0, 0, 255, 1)">instanceof</span><span style="color: rgba(0, 0, 0, 1)"> MissingCellDummyRecord) {
+            MissingCellDummyRecord mc </span>=<span style="color: rgba(0, 0, 0, 1)"> (MissingCellDummyRecord) record;
+            curRow </span>= thisRow =<span style="color: rgba(0, 0, 0, 1)"> mc.getRow();
+            thisColumn </span>=<span style="color: rgba(0, 0, 0, 1)"> mc.getColumn();
+            rowlist.add(thisColumn, </span>" "<span style="color: rgba(0, 0, 0, 1)">);
+        }
+
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 更新行和列的值</span>
+        <span style="color: rgba(0, 0, 255, 1)">if</span> (thisRow &gt; -1<span style="color: rgba(0, 0, 0, 1)">)
+            lastRowNumber </span>=<span style="color: rgba(0, 0, 0, 1)"> thisRow;
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span> (thisColumn &gt; -1<span style="color: rgba(0, 0, 0, 1)">)
+            lastColumnNumber </span>=<span style="color: rgba(0, 0, 0, 1)"> thisColumn;
+
+        </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 行结束时的操作</span>
+        <span style="color: rgba(0, 0, 255, 1)">if</span> (record <span style="color: rgba(0, 0, 255, 1)">instanceof</span><span style="color: rgba(0, 0, 0, 1)"> LastCellOfRowDummyRecord) {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (minColumns &gt; 0<span style="color: rgba(0, 0, 0, 1)">) {
+                </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 列值重新置空</span>
+                <span style="color: rgba(0, 0, 255, 1)">if</span> (lastColumnNumber == -1<span style="color: rgba(0, 0, 0, 1)">) {
+                    lastColumnNumber </span>= 0<span style="color: rgba(0, 0, 0, 1)">;
+                }
+            }
+            lastColumnNumber </span>= -1<span style="color: rgba(0, 0, 0, 1)">;
+
+            </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 每行结束时， 调用getRows() 方法</span>
+            <span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)">(isWriteRow(rowlist)){
+                </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)">rowReader.getRows(sheetIndex, curRow, rowlist);</span>
+                r = <span style="color: rgba(0, 0, 255, 1)">new</span> ArrayList&lt;String&gt;<span style="color: rgba(0, 0, 0, 1)">();
+                r.addAll(rowlist);
+                templist.add(r);
+                r </span>= <span style="color: rgba(0, 0, 255, 1)">null</span><span style="color: rgba(0, 0, 0, 1)">;
+            }
+            </span><span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)"> 清空容器</span>
+<span style="color: rgba(0, 0, 0, 1)">            rowlist.clear();
+        }
+    }
+    </span><span style="color: rgba(0, 0, 255, 1)">private</span> <span style="color: rgba(0, 0, 255, 1)">boolean</span><span style="color: rgba(0, 0, 0, 1)"> isWriteRow(List list){
+        </span><span style="color: rgba(0, 0, 255, 1)">boolean</span> flag = <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">; 
+        </span><span style="color: rgba(0, 0, 255, 1)">for</span> (<span style="color: rgba(0, 0, 255, 1)">int</span> i = 0; i &lt; list.size(); i++<span style="color: rgba(0, 0, 0, 1)">) {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (list.get(i)!= <span style="color: rgba(0, 0, 255, 1)">null</span> &amp;&amp; !list.get(i).equals(""<span style="color: rgba(0, 0, 0, 1)">)) {
+                flag </span>= <span style="color: rgba(0, 0, 255, 1)">true</span><span style="color: rgba(0, 0, 0, 1)">;
+                </span><span style="color: rgba(0, 0, 255, 1)">break</span><span style="color: rgba(0, 0, 0, 1)">;
+            }
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">if</span><span style="color: rgba(0, 0, 0, 1)"> (allowNullRow) {
+            </span><span style="color: rgba(0, 0, 255, 1)">if</span> (!<span style="color: rgba(0, 0, 0, 1)">flag) {
+                flag </span>= <span style="color: rgba(0, 0, 255, 1)">true</span>;<span style="color: rgba(0, 128, 0, 1)">//</span><span style="color: rgba(0, 128, 0, 1)">允许一次空行</span>
+                allowNullRow = <span style="color: rgba(0, 0, 255, 1)">false</span><span style="color: rgba(0, 0, 0, 1)">;
+            }            
+        }
+        </span><span style="color: rgba(0, 0, 255, 1)">return</span><span style="color: rgba(0, 0, 0, 1)"> flag;       
+    }
+
+
+}</span></pre>
+</div>
+<p>&nbsp;</p>
+</div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+    <div id="blog_post_info"></div>
+    <div class="clear"></div>
+    <div id="post_next_prev"></div>
+</div>
+		</div>
+		<div class="postDesc">posted @ 
+<span id="post-date">2019-08-23 14:55</span>&nbsp;
+<a href="https://www.cnblogs.com/wangchl/">搬砖的老王</a>&nbsp;
+阅读(<span id="post_view_count">4582</span>)&nbsp;
+评论(<span id="post_comment_count">0</span>)&nbsp;
+<a href="https://i.cnblogs.com/EditPosts.aspx?postid=11400025" rel="nofollow">编辑</a>&nbsp;
+<a href="javascript:void(0)" onclick="AddToWz(11400025);return false;">收藏</a>&nbsp;
+<a href="javascript:void(0)" onclick="reportManager.report({ currentUserId: '', targetType: 'blogPost', targetId: '11400025', targetLink: 'https://www.cnblogs.com/wangchl/p/11400025.html', title: 'poi sax读取excel,解决大数据量导致的内存溢出问题' })">举报</a></div>
+	</div>
+	
+	
+</div><!--end: topics 文章、评论容器-->
+
+<script src="https://common.cnblogs.com/highlight/10.3.1/highlight.min.js" async onload="markdown_highlight()"></script>
+<script>
+    var allowComments = true, cb_blogId = 429105, cb_blogApp = 'wangchl', cb_blogUserGuid = '35e1a437-c4f5-471c-fa9b-08d5a823ae5e';
+    var cb_entryId = 11400025, cb_entryCreatedDate = '2019-08-23 14:55', cb_postType = 1;
+    updatePostStats(
+        [cb_entryId],
+        function(id, count) { $("#post_view_count").text(count) },
+        function(id, count) { $("#post_comment_count").text(count) })
+    zoomManager.apply("#cnblogs_post_body img:not(.code_img_closed):not(.code_img_opened)");
+</script>
+
+<a name="!comments"></a>
+<div id="blog-comments-placeholder"></div>
+<div id="comment_form" class="commentform">
+    <a name="commentform"></a>
+    <div id="divCommentShow"></div>
+    <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+    <div id="comment_form_container"></div>
+    <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+    <div id="ad_t2"></div>
+    <div id="opt_under_post"></div>
+    <div id="cnblogs_c1" class="under-post-card">
+             <a onclick="ga('send', 'event', 'Link', 'click', 'Pangle-C1')" target="_blank" rel="nofollow" href="https://c.gridsumdissector.com/r/?gid=gad_545_ph4hkwzt&ck=32&adk=442&autorefresh=__AUTOREFRESH__">
+                <img style="width: 300px; height: 250px;" src="https://img2020.cnblogs.com/blog/35695/202108/35695-20210817131346802-930113090.jpg" alt="" onload="gscmdImpress()" />
+             </a>
+    </div>
+    <div id="under_post_card1"></div>
+    <div id="under_post_card2"></div>
+    <div id="HistoryToday" class="under-post-card"></div>
+    <script type="text/javascript">
+       var commentManager = new blogCommentManager();
+       commentManager.renderComments(0);
+       fixPostBody();
+       deliverBigBanner();
+setTimeout(function() { incrementViewCount(cb_entryId); }, 50);       deliverT2();
+       deliverC1C2();
+       loadNewsAndKb();
+LoadPostCategoriesTags(cb_blogId, cb_entryId);       LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+       GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+       loadOptUnderPost();
+       GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+    </script>
+</div>
+
+</div>
+
+
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			<div id="sidebar_news" class="newsItem">
+            <script>loadBlogNews();</script>
+</div>
+<div id="sidebar_c3"></div>
+			<div id="calendar"><div id="blog-calendar" style="display:none"></div><script>loadBlogDefaultCalendar();</script></div>
+			
+			<DIV id="leftcontentcontainer">
+				<div id="blog-sidecolumn"></div>
+                    <script>loadBlogSideColumn();</script>
+			</DIV>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		<!--done-->
+Copyright &copy; 2021 搬砖的老王
+<br /><span id="poweredby">Powered by .NET 5.0 on Kubernetes</span>
+
+
+
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+    
+
+    <input type="hidden" id="antiforgery_token" value="CfDJ8NACB8VE9qlHm6Ujjqxvg5BCQjB6m7qtC13kk9w-OYBxoeMKs5eFWe3IFIjx8Q_GxNDuYOIYRZm3I8-CsYn1Lr8QETjaeryQAh3QvWabDsh7dbK1czf8o3bvrEyJf1qyADLcWZzk3WBGR2IHT_TjYJ8" />
+</body>
+</html>
